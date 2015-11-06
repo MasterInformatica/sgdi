@@ -7,9 +7,9 @@
 *.class
 *.jar
 
-# P2 outputs #
+# P1 outputs #
 ##############
-P2/error
-P2/output
-P2/salida/
+P1/error
+P1/output
+P1/salida/
 
