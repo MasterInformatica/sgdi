@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+"""
+ Sistemas de gestion de datos y de la informacion 
+ Practica 1
+ Luis Maria Costero Valero 
+ Jesus Javier Domenech Arellano 
+
+ Nosotros, Luis M. Costero y Jesus Domenech, declaramos la autoria completa de este documento. 
+
+"""
+
+
 from mrjob.job import MRJob
 
 

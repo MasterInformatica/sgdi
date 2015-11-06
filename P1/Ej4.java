@@ -1,3 +1,15 @@
+/**
+ Sistemas de gestion de datos y de la informacion 
+ Practica 1
+ Luis Maria Costero Valero 
+ Jesus Javier Domenech Arellano 
+
+ Nosotros, Luis M. Costero y Jesus Domenech, declaramos la autoria completa de este documento. 
+
+La informacion extra no vista en clase ha sido consultada principalmente en
+https://hadoop.apache.org/docs/current/api/org/apache/hadoop/io/
+ **/
+
 import java.io.IOException;
 import java.util.StringTokenizer;
 
