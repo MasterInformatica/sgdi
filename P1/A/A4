@@ -1,0 +1,6 @@
+xquery version "3.0";
+
+for $e in doc("/db/sgdi/books.xml")/catalog/book
+where $e/price < 10
+order by $e/author descending
+return $e

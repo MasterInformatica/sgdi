@@ -1,0 +1,6 @@
+xquery version "3.0";
+
+for $e in doc("/db/sgdi/books.xml")/catalog/book
+let $t := $e/title
+where $e/genre = "Computer"
+return $t

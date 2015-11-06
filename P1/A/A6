@@ -1,0 +1,9 @@
+xquery version "3.0";
+
+for $e in doc("/db/sgdi/books.xml")/catalog/book
+where $e/@id="bk105"
+return
+    <elem precio="{ data($e/price) }" >   
+        <titulo>{ data($e/title)  }</titulo>
+        <autor> { data($e/author) }</autor>
+    </elem>
