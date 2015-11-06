@@ -1,1 +1,9 @@
-P2/error\nP2/output\nP2/salida/
+# Emacs files #
+###############
+*~
+
+# P2 outputs #
+##############
+P2/error
+P2/output
+P2/salida/
