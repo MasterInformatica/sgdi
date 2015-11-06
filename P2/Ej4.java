@@ -6,11 +6,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Writable;
+import java.io.DataOutput;
+import java.io.DataInput;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
@@ -24,9 +28,59 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
+
+/** Vector wirtable para pasar los datos **/
+
+
 public class Ej4 {
 
-    public static class TokenizerMapper extends Mapper<Object, Text, Text, Text>{
+    public static class IntVectorWritable implements Writable {
+	private Vector<Integer> vector;
+    
+	public int getElemt(int i){
+	    return this.vector.elementAt(i);
+	}
+	public void insert(int E){
+	    if (this.vector == null)
+		this.vector = new Vector<Integer>();
+	    this.vector.add(E);
+	}
+
+	public void IntVectorWritable(){
+	    this.vector = new Vector<Integer>();
+	}
+
+
+	public void write(DataOutput out) throws IOException {
+	    out.writeInt(this.vector.size());
+	    for(int t : this.vector){
+		out.writeInt(t);
+	    }
+	}
+    
+	public void readFields(DataInput in) throws IOException {
+	    int numElems=in.readInt();
+	    this.vector = new Vector<Integer>(numElems);
+	    for(int i=0; i<numElems; i++){
+		this.vector.add(i, in.readInt());
+	    }
+	}
+
+	public int compareTo(IntVectorWritable v) {
+	    if(this.vector.size() != v.vector.size())
+		return (this.vector.size() > v.vector.size()) ? 1 : -1;
+
+	    for(int i=0; i<this.vector.size(); i++){
+		if(this.vector.elementAt(i) != v.vector.elementAt(i))
+		    return (this.vector.elementAt(i) 
+			    > v.vector.elementAt(i)) ? 1 : -1;
+	    }
+	    return 0;
+	}
+    }
+
+
+    public static class TokenizerMapper extends Mapper<Object, Text, Text,IntVectorWritable>{
 	
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
     
@@ -34,43 +88,46 @@ public class Ej4 {
 	    String[] w = v.split(" ");
 	    int error = (Integer.parseInt(w[w.length-2]) >= 400 && Integer.parseInt(w[w.length-2]) < 600) ? 1 : 0;
 	    int byt = (w[w.length-1].equals("-")) ? 0 : Integer.parseInt(w[w.length-1]);
-	    context.write(new Text(w[0]),  new Text(""+byt+","+error));
+	    IntVectorWritable ivw = new IntVectorWritable();
+	    ivw.insert(byt);
+	    ivw.insert(error);
+	    context.write(new Text(w[0]), ivw);
 	}
     }
     
-    public static class OwnCombiner extends Reducer<Text, Text, Text, Text> {
+    public static class OwnCombiner extends Reducer<Text, IntVectorWritable, Text, IntVectorWritable> {
 
-	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+	public void reduce(Text key, Iterable<IntVectorWritable> values, Context context) throws IOException, InterruptedException {
 
 	    int total = 0;
 	    int size = 0;
 	    int errs = 0;
 			
-	    for (Text val: values) {
-		String[] str = val.toString().split(",");
+	    for (IntVectorWritable val: values) {
 		total++;
-		size += Integer.parseInt(str[0]);
-		errs += Integer.parseInt(str[1]);
+		size += val.getElemt(0);
+		errs += val.getElemt(1);
 	    }
-			
-	    context.write(key,  new Text(""+total+","+size+","+errs));
-	
+	    IntVectorWritable ivw = new IntVectorWritable();
+	    ivw.insert(total);
+	    ivw.insert(size);
+	    ivw.insert(errs);
+	    context.write(key, ivw);
 	}
     }
 	
  
-    public static class IntSumReducer extends Reducer<Text, Text, Text, Text> {
+    public static class IntSumReducer extends Reducer<Text, IntVectorWritable, Text, Text> {
 		
-	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+	public void reduce(Text key, Iterable<IntVectorWritable> values, Context context) throws IOException, InterruptedException {
 	    int total = 0;
 	    int size = 0;
 	    int errs = 0;
-			
-	    for (Text val: values) {
-		String[] str = val.toString().split(",");
-		total+= Integer.parseInt(str[0]);
-		size += Integer.parseInt(str[1]);
-		errs += Integer.parseInt(str[2]);
+
+	    for (IntVectorWritable val: values) {
+		total+= val.getElemt(0);
+		size += val.getElemt(1);
+		errs += val.getElemt(2);
 	    }
 			
 	    context.write(key,  new Text("("+total+", "+size+", "+errs+")"));
@@ -85,13 +142,14 @@ public class Ej4 {
 	Job job = Job.getInstance(conf);
 	job.setJarByClass(Ej4.class);
 	job.setMapperClass(TokenizerMapper.class);
+
 	//Si existe combinador
 	job.setCombinerClass(OwnCombiner.class);
 	job.setReducerClass(IntSumReducer.class);
 
 	// Declaración de tipos de salida para el mapper
 	job.setMapOutputKeyClass(Text.class);
-	job.setMapOutputValueClass(Text.class);
+	job.setMapOutputValueClass(IntVectorWritable.class);
 	// Declaración de tipos de salida para el reducer
 	job.setOutputKeyClass(Text.class);
 	job.setOutputValueClass(Text.class);

@@ -2,8 +2,14 @@
 ###############
 *~
 
+# Java files #
+##############
+*.class
+*.jar
+
 # P2 outputs #
 ##############
 P2/error
 P2/output
 P2/salida/
+
