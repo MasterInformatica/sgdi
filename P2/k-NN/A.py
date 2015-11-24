@@ -6,10 +6,11 @@ from scipy.spatial import distance
 
 """
 Function: toFloat
-Args:
--> string: string to be converted
+Descr: 
+Input:
+  string: string to be converted
 Return:
--> float or string if we can not convert
+  float or string if we can not convert
 """
 def toFloat(string):
     aux = string
@@ -19,12 +20,14 @@ def toFloat(string):
         aux = string
     return aux
 
+
 """
 Function: read_file
-Args:
--> filename: CSV File name to be read.
+Descr:
+Input:
+   filename: CSV File name to be read.
 Return:
--> List of instance for each file line.
+   List of instance for each file line.
 """
 def read_file( filename = "iris_test.csv" ):
     infile = open(filename,"r")
@@ -39,19 +42,32 @@ def read_file( filename = "iris_test.csv" ):
 
 """
 Function: knn
-Args:
+Descr: 
+Input:
    k: number of neighbours 
    i: instance to be analiZ?????????????
    c: trainset
 Return:
--> a string who indicates the predicted class of i
+   a string who indicates the predicted class of i
 """
 def knn ( k, i , c ):
+    #TODO: La instancia i puede tener la clase o no. OJO: comprobar
     clases = clase_kvecinos_cercanos(k,i,c)
     return mode(clases)
 
 
+
 #TODO: Documentar
+"""
+Function:
+Descr:
+Input:
+   k: 
+   i: 
+   c: 
+Return:
+
+"""
 def clase_kvecinos_cercanos(k, i, c):
     """ Devuelve las k clases de lso k vecinos más cercanos """
 
@@ -73,6 +89,16 @@ def clase_kvecinos_cercanos(k, i, c):
     
 
 #TODO: Documentar
+"""
+Function:
+Descr:
+Input:
+   k: 
+   i: 
+   c: 
+Return:
+
+"""
 def mode(l):
     """ Devuelve la moda de la lista pasada """
     max_num = -1
@@ -95,20 +121,34 @@ def mode(l):
 
 """
 Function: test
-Args:
--> k: number of neighbours
--> trainset: 
--> testset:
+Descr:
+Input:
+   k: number of neighbours
+   trainset: 
+   testset: 
 Return:
-->
+
 """
 def test( k, trainset, testset):
-    return [knn(k,x,trainset)    for x in testset]
+    clasificacion = [knn(k,x,trainset)    for x in testset]
+    numAciertos = 0
+
+    for i in range(0, len(testset)):
+        print clasificacion[i] ,",", testset[i][-1]
+        if clasificacion[i] == testset[i][-1]:
+            numAciertos += 1
+
+
+    return (numAciertos*1.0)/(len(testset)*1.0)
+    
 
 
 
 
 # FOR DEBUGGING
+"""
+Borrar cuando se acabe
+"""
 def debug_print(s):
     if DEBUG:
         print s
@@ -119,12 +159,16 @@ if __name__ == "__main__":
     #--------------
     DEBUG=False
     #--------------
+
     k = 5
     trainset = read_file("iris.csv")
     debug_print(trainset)
     testset = read_file("iris_test.csv")
     debug_print(testset)
     result =  test( k, trainset, testset)
-    for idx in range(len(result)):
-        print result[idx],testset[idx][0:-1]
+    
+    print result
+
+#    for idx in range(len(result)):
+#        print result[idx],testset[idx][0:-1]
 
