@@ -20,7 +20,6 @@ def toFloat(string):
         aux = string
     return aux
 
-
 """
 Function: read_file
 Descr:
@@ -51,7 +50,6 @@ Return:
    a string who indicates the predicted class of i
 """
 def knn ( k, i , c ):
-    #TODO: La instancia i puede tener la clase o no. OJO: comprobar
     clases = clase_kvecinos_cercanos(k,i,c)
     return mode(clases)
 
@@ -71,9 +69,12 @@ Return:
 def clase_kvecinos_cercanos(k, i, c):
     """ Devuelve las k clases de lso k vecinos más cercanos """
 
-    #OJO: esos -1 no se si tienen mucho sentido
-    #La instancia a clasificar ya tiene una clase????
-    distances = [ distance.euclidean(i[:-1],v[:-1]) for v in c]
+    #si tienen el mismo tamaño significa que i tiene la clase puesta
+    if len(i) == len(v):
+        distances = [ distance.euclidean(i[:-1],v[:-1]) for v in c]
+    #sino es que no tiene la clase en la ultima
+    else:
+        distances = [ distance.euclidean(i,v[:-1]) for v in c]
 
     #creamos las parejas (distancia, clase)
     par=[]
