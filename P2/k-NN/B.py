@@ -90,23 +90,23 @@ def mode(l):
 
 class MRWordCount(MRJob):
 
+    def mapper_init(self):
+        self.testset = read_file(TESTPATH)
+
     def mapper(self, key, line):
         w = line.split(',')
         if isNotFloat(w[0]):
             return
         w = map(toFloat,w)
-        testset = read_file(TESTPATH)
-        for t in testset:
+        for t in self.testset:
             dis = distance.euclidean(t[:-1],w[:-1])
             yield t,(dis,w[-1])
-
 
     def combiner(self, key, values):
         vals = sorted(values)[:K]
         for w in vals:
             yield key, w
 
-    # Fase REDUCE (key es una cadena texto, values un generador de valores)
     def reducer(self, key, values):
         par = sorted(values)[:K]
         par = [p[1] for p in par]
