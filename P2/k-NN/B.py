@@ -1,5 +1,14 @@
 # -*- coding: utf-8 -*-
 """
+NUEVA IDEA:
+ Si a enrique no le gusta que usemos el combiner. Se puede guardar en el mapper de maenra estática las k
+ distancias más pequeñas que hemos emitido hasta el momento, y si es mayor no emitir la pareja. Si es menor,m
+ emitir la pareja y actualizar lña lista estática de distancias.
+"""
+
+
+
+"""
  Sistemas de gestion de datos y de la informacion 
  Practica 2
  Luis Maria Costero Valero 
