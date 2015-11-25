@@ -65,7 +65,7 @@ def read_file( filename = "iris_test.csv" ):
     for row in reader:
         tmp = [toFloat(w) for w in row]
         rows.append(tmp)
-    return rows[1:-1]
+    return rows[1:]
 
 
 
