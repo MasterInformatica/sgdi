@@ -6,6 +6,11 @@ NUEVA IDEA:
  emitir la pareja y actualizar lña lista estática de distancias.
 """
 
+"""
+DUDA/OBSERVACION: La tarea conoce testset e itera sobre instanceset,
+o mejor al revés???
+"""
+
 
 
 """
