@@ -70,7 +70,8 @@ def clase_kvecinos_cercanos(k, i, c):
     """ Devuelve las k clases de lso k vecinos más cercanos """
 
     #si tienen el mismo tamaño significa que i tiene la clase puesta
-    if len(i) == len(v):
+    
+    if len(i) == len(c[0]):
         distances = [ distance.euclidean(i[:-1],v[:-1]) for v in c]
     #sino es que no tiene la clase en la ultima
     else:
