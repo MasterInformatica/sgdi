@@ -48,10 +48,15 @@ def select_initial_centroides(k, instancias):
     pass
 
 
-""" Devuleve una pareja "clistering, centroides", del estilo:
-{0: [inst1, inst2, inst3],
- 1: [inst4],
- 2: [inst5] },
+
+""" Devuleve una pareja "clustering, centroides", del estilo,
+donde el clustering es un diccionarios del estilo:
+  {0: [inst1, inst2, inst3],
+   1: [inst4],
+   2: [inst5] },
+
+y centroides es una lista de centroides.
+
 
 Si la lista de centroides está vacia, se escogeran los centroides 
 intentando que estén lo más alejados entre sí, con el siguiente algoritmo:
@@ -66,42 +71,60 @@ def kmeans(k, instancias, centroides_ini = None):
         centroides = centroides_ini
 
 
-    # La estructura cluster [(centroide, [instancias]),
-    #                        (centroide, [instancias]), ....
-    # almacena por cada cluster, su centroide, y las instancias actuales.
+    # centroides almacena una lista con los centroides en cada momento
+    # clustering es un diccionario donde por cada cluster, aparencen las instancias clasificadas.
     clustering = {}
 
-    for i in range(k):
-        clustering[i] =[]
+
+
 
     while(True):
+        # Cada iteracion vaciamos los clusters. Detectamos si ha habido cambios porque ha cambiado
+        # algún centroide o no
+        for i in range(k):
+            clustering[i] =[]
+
+
         # 2.- Para cada instancia en C asignar al cluster con centroide
         # más cercano
         for i in instancias:
-            dist_menor = float("inf")
-            idx_menor = -1
-            # calcular la distancia a todos los centroides c[k][0],
-            # quedarse con la distancia menor (y el idx)
-            for idx in range(k):
-                d = distance.euclidean(i, centroides[idx])
-                if d < dist_menor:
-                    idx_menor = idx
-                    dist_menor = d
-            # añadimos la instancia actual al cluster provisional
-            clustering[idx_menor].append(i)
+            idx = get_centroide_cercano(centroides, i)
+            clustering[idx].append(i)
+
 
         # 3.- Calcular los nuevos centroides de cada cluster
-        # cluster,cambio = actualiza_centroides(clusters)
         nuevos_centroides = actualiza_centroides(clustering)
+
+        # Ha habido actualizaciones solo si los centroides han cambiado
         if nuevos_centroides == centroides:
-            # SALIR
-            break
+            break  # SALIR
         else:
             centroides = nuevos_centroides
 
     return (clustering, centroides)
 
 
+
+""" Dada una lista de centoides y una instancia,
+devuelve el índice del centroide más cercano.
+"""
+def get_centroide_cercano(centroides, i):
+    dist_menor = float("inf")
+    idx_menor = -1
+
+    for idx in range(len(centroides)):
+        d = distance.euclidean(i, centroides[idx])
+        if d < dist_menor:
+            idx_menor = idx
+            dist_menor = d
+
+    return idx_menor
+
+
+"""
+Dado un diccionario de cluster - instancias de ese cluster,
+devuleve una lista con los centroides de cada cluster
+"""
 def actualiza_centroides(clustering):
     return [get_centroide(clustering[idx]) for idx in clustering] 
 
@@ -113,25 +136,16 @@ def get_centroide(lista):
     centroide = lista[0]
     N = len(lista)
     M = len(centroide)
+
     for i in range(1,N):
         for j in range(M):
-            centroide[j] += lista[i] [j]
+            centroide[j] += lista[i][j]
 
     for i in range(M):
         centroide[i] /= N*1.0
 
     return centroide
 
-
-"""
-k-means(C:conjunto de datos, k:nat)
-
-2.- Para cada instancia en C asignar al cluster con centroide 
-      más cercano
-3.- Calcular los nuevos centroides de cada cluster
-4.- Repetir los pasos 2.- y 3.- hasta que las instancias dentro de cada 
-      cluster no cambien
-"""
 
 
 
