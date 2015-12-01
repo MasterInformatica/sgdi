@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import csv
 from scipy.spatial import distance
-import pprint
+
 
 
 """
@@ -45,7 +45,18 @@ Selecciona k centroides lo más alejado posible siguiendo el algoritmo:
 ...
 """
 def select_initial_centroides(k, instancias):
-    pass
+    c = [instancias[0]]
+    while(k != 1):
+        dist = []
+        for i in instancias:
+            dist.append((min([distance.euclidean(i,v) for v in c]),i))
+        # ordenamos por el primer atributo y cojemos la 
+        # instancia correspondiente al mas lejano
+        cent = sorted(dist)[-1][1]
+        c.append(cent)
+        k -= 1
+    return c
+        
 
 
 
@@ -64,23 +75,19 @@ intentando que estén lo más alejados entre sí, con el siguiente algoritmo:
 ....
 """
 def kmeans(k, instancias, centroides_ini = None):
+
     # 1.- elegir k puntos de C como centroides
     if(centroides_ini is None):
         centroides = select_initial_centroides(k, instancias)
     else:
         centroides = centroides_ini
 
-
     # centroides almacena una lista con los centroides en cada momento
     # clustering es un diccionario donde por cada cluster, aparencen las instancias clasificadas.
     clustering = {}
 
-
-
-
     while(True):
-        # Cada iteracion vaciamos los clusters. Detectamos si ha habido cambios porque ha cambiado
-        # algún centroide o no
+        # Cada iteracion vaciamos los clusters. 
         for i in range(k):
             clustering[i] =[]
 
@@ -94,12 +101,13 @@ def kmeans(k, instancias, centroides_ini = None):
 
         # 3.- Calcular los nuevos centroides de cada cluster
         nuevos_centroides = actualiza_centroides(clustering)
-
-        # Ha habido actualizaciones solo si los centroides han cambiado
+        # Detectamos si ha habido cambios porque ha cambiado
+        # algún centroide o no
         if nuevos_centroides == centroides:
             break  # SALIR
         else:
             centroides = nuevos_centroides
+    # END WHILE
 
     return (clustering, centroides)
 
@@ -133,23 +141,24 @@ def actualiza_centroides(clustering):
 Dado una lista de instancias, devuleve su centroide
 """
 def get_centroide(lista):
-    centroide = lista[0]
+    centroide = []
     N = len(lista)
-    M = len(centroide)
+    M = len(lista[0])
 
-    for i in range(1,N):
-        for j in range(M):
+    for j in range(M):
+        centroide.append(0)
+        for i in range(N):
             centroide[j] += lista[i][j]
-
-    for i in range(M):
-        centroide[i] /= N*1.0
+        centroide[j] /= N*1.0
 
     return centroide
 
 
-
-
 if __name__ == "__main__":
     instancias = read_file()
-    pp =  pprint.PrettyPrinter(indent=4)
-    pp.pprint( kmeans(4, instancias, instancias[0:4]))
+    result = kmeans(4, instancias)
+    for r in result[0]:
+        print "cluster", r, "->", len(result[0][r]), "instancias"
+        print "\tcent:", result[1][r]
+    #    for i in result[0][r]:
+    #        print "\t", i
