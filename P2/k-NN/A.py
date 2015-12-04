@@ -4,15 +4,17 @@ import csv
 import pprint
 from scipy.spatial import distance
 
-"""
-Function: toFloat
-Descr: 
-Input:
-  string: string to be converted
-Return:
-  float or string if we can not convert
-"""
+
 def toFloat(string):
+    """
+    Function: toFloat
+    Descrp: Convierte los string posibles a float.
+    Args:
+    -> string: string a convertir
+    Return:
+    -> float (o string si no se ha podido convertir)
+    """
+
     aux = string
     try:
         aux = float(string)
@@ -20,15 +22,17 @@ def toFloat(string):
         aux = string
     return aux
 
-"""
-Function: read_file
-Descr:
-Input:
-   filename: CSV File name to be read.
-Return:
-   List of instance for each file line.
-"""
+
 def read_file( filename = "iris_test.csv" ):
+    """
+    Function: read_file
+    Descrp: Lee el archivo linea a linea y devuelve las instancias.
+    Args:
+    -> filename: CSV Nombre del archivo a leer
+    Return:
+    -> Lista de las instancias.
+    """
+
     infile = open(filename,"r")
     reader = csv.reader(infile)
     rows = []
@@ -38,81 +42,72 @@ def read_file( filename = "iris_test.csv" ):
     return rows[1:]
 
 
-
-"""
-Function: knn
-Descr: 
-Input:
-   k: number of neighbours 
-   i: instance to be analiZ?????????????
-   c: trainset
-Return:
-   a string who indicates the predicted class of i
-"""
 def knn ( k, i , c ):
+    """
+    Function: knn
+    Descr: Calcula la clase recomendada para la instancia a analizar
+    Input:
+    -> k: Numero de vecinos a tener en cuenta 
+    -> i: Instancia a analizar
+    -> c: Conjunto de entrenamiento
+    Return:
+    -> Clase recomendada para la instancia.
+    """
+
     clases = clase_kvecinos_cercanos(k,i,c)
     return mode(clases)
 
 
-
-#TODO: Documentar
-"""
-Function:
-Descr:
-Input:
-   k: 
-   i: 
-   c: 
-Return:
-
-"""
 def clase_kvecinos_cercanos(k, i, c):
-    """ Devuelve las k clases de lso k vecinos más cercanos """
+    """
+    Function: clase_kvecinos_cercanos
+    Descrp: Devuelve las k clases de los k vecinos más cercanos 
+    Args:
+    -> k: Numero de vecinos a tener en cuenta 
+    -> i: Instancia a analizar
+    -> c: Conjunto de entrenamiento
+    Return:
+    -> Lista de clases de los k vecinos
+    """
 
-    #si tienen el mismo tamaño significa que i tiene la clase puesta
-    
+    # si tienen el mismo tamaño significa que i tiene la clase incorporada
     if len(i) == len(c[0]):
         distances = [ distance.euclidean(i[:-1],v[:-1]) for v in c]
-    #sino es que no tiene la clase en la ultima
     else:
         distances = [ distance.euclidean(i,v[:-1]) for v in c]
 
-    #creamos las parejas (distancia, clase)
-    par=[]
+    # creamos las parejas (distancia, clase)
+    par = []
     for i in range(0,len(c)):
         par += [(distances[i], c[i][-1])]
     
-    #nos quedamos con las k instancias con distancia menor
-    par= sorted(par)[:k]
-    #y solamente con la clase, sin las distancias
+    # nos quedamos con las k instancias con distancia menor
+    par = sorted(par)[:k]
+    # y solamente con la clase, sin las distancias
     par = [p[1] for p in par]
 
     return par
     
 
-#TODO: Documentar
-"""
-Function:
-Descr:
-Input:
-   k: 
-   i: 
-   c: 
-Return:
+def mode(lista):
+    """
+    Function: media
+    Descrp: Calcula la moda de la lista.
+    Args:
+    -> lista: Lista de la que calcular la moda.
+    Return:
+    -> moda de la lista
+    """
 
-"""
-def mode(l):
-    """ Devuelve la moda de la lista pasada """
     max_num = -1
     moda = None
     dic={}
 
-    for p in l:
+    for p in lista:
         if not p in dic:
             dic[p] = 1
         else:
             dic[p] += 1
-
         if max_num < dic[p]:
             max_num = dic[p]
             moda = p
@@ -120,18 +115,19 @@ def mode(l):
     return moda
 
 
-
-"""
-Function: test
-Descr:
-Input:
-   k: number of neighbours
-   trainset: 
-   testset: 
-Return:
-
-"""
 def test( k, trainset, testset):
+    """
+    Function: test
+    Descr: Ejecuta knn para las instancias del testset y comprueba el
+    porcentaje de acierto
+    Input:
+    -> k: number of neighbours
+    -> trainset: Conjunto de entrenamiento
+    -> testset: Conjunto de instancias a predecir
+    Return:
+    -> Porcentaje de acierto
+    """
+
     clasificacion = [knn(k,x,trainset)    for x in testset]
     numAciertos = 0
 
@@ -140,37 +136,16 @@ def test( k, trainset, testset):
         if clasificacion[i] == testset[i][-1]:
             numAciertos += 1
 
-
     return (numAciertos*1.0)/(len(testset)*1.0)
+
     
-
-
-
-
-# FOR DEBUGGING
-"""
-Borrar cuando se acabe
-"""
-def debug_print(s):
-    if DEBUG:
-        print s
-
-
-
 if __name__ == "__main__":
-    #--------------
-    DEBUG=False
-    #--------------
-
     k = 5
     trainset = read_file("iris.csv")
-    debug_print(trainset)
     testset = read_file("iris_test.csv")
-    debug_print(testset)
     result =  test( k, trainset, testset)
     
     print result
-
-#    for idx in range(len(result)):
-#        print result[idx],testset[idx][0:-1]
+    # for idx in range(len(result)):
+    #     print result[idx],testset[idx][0:-1]
 

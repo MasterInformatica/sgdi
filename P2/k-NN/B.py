@@ -7,13 +7,6 @@ NUEVA IDEA:
 """
 
 """
-DUDA/OBSERVACION: La tarea conoce testset e itera sobre instanceset,
-o mejor al revés???
-"""
-
-
-
-"""
  Sistemas de gestion de datos y de la informacion 
  Practica 2
  Luis Maria Costero Valero 
@@ -26,11 +19,12 @@ o mejor al revés???
 
 from mrjob.job import MRJob
 from scipy.spatial import distance
+import Queue
 import csv
 import re
 import os
 
-TESTPATH = "/home/friker/Uni/Master/SGDI/P2/k-NN/iris_test.csv"
+TESTPATH = "/home/hlocal/repos/sgdi/P2/k-NN/iris_test.csv"
 K = 5
 
 """
@@ -104,8 +98,12 @@ def mode(l):
 
 class MRWordCount(MRJob):
 
+
     def mapper_init(self):
         self.testset = read_file(TESTPATH)
+        self.dic = {}
+        for t in self.testset:
+            self.dic[str(t)] = Queue.PriorityQueue(K)
 
     def mapper(self, key, line):
         w = line.split(',')
@@ -114,12 +112,17 @@ class MRWordCount(MRJob):
         w = map(toFloat,w)
         for t in self.testset:
             dis = distance.euclidean(t[:-1],w[:-1])
-            yield t,(dis,w[-1])
+            self.dic[str(t)].put((dis,w[-1]))
+            # yield t,(dis,w[-1])
+            yield t ,(float('inf'),"caca")
 
-    def combiner(self, key, values):
-        vals = sorted(values)[:K]
-        for w in vals:
-            yield key, w
+    def mapper_final(self):
+        print "A"
+        for t in self.testset:
+            key = str(t)
+            while not self.dic[key].empty():
+                yield (t, self.dic[key].get())
+
 
     def reducer(self, key, values):
         par = sorted(values)[:K]
