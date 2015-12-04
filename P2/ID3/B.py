@@ -8,7 +8,7 @@ def toDOT(Tree):
     # y configura su construccion
     dot = "digraph T {\n"
     n=0
-    (d,n)= dotTree(Tree,n)
+    (d,n)= dotNodo(Tree,n)
     dot+=d
     dot += "}"
     return dot
@@ -19,16 +19,20 @@ def dotNodo(Nodo,n):
     # el atributo n nos asegura que cada nodo sera unico
     dot = ""
     m = n # n tiene que ser el mismo para todos los hijos por eso lo guardamos en m
+    if n == 0:
+        dot += "\t"+Nodo[0]+'0 [label="'+Nodo[0]+'"];\n'
     for child in Nodo[1]:
         # escribimos cada arista con los hijos e incrementamos n para evitar repeticiones
         # dado que puede repetirse el nombre en los hijos
         n+=1
-        # ######## Nombre del Nodo ->   Nombre de su hijo  [ valor del atributo que divide]
+        # ######## Id del Nodo       ->  id de su hijo  [ valor del atributo que divide]
         dot += "\t"+Nodo[0]+str(m)+" -> "+child[0]+str(n)+' [label="'+child[2]+'"];\n'
+        # ######### Id del hijo      [nombre que se va a mostrar]
+        dot += "\t"+child[0]+str(n)+' [label="'+child[0]+'"];\n'
         if len(child[1]) == 0:
             # es una hoja y por tanto una clase le damos un aspecto diferente
             # ademas no mandamos escribir sus hijos
-            dot += "\t"+child[0]+str(n)+ '[];\n'
+            dot += "\t"+child[0]+str(n)+ '[style="filled", color="red"];\n'
         else:
             # si no es una hoja lo pintamos
             (d,n)= dotNodo(child,n)
@@ -37,7 +41,7 @@ def dotNodo(Nodo,n):
 
 
 if __name__ == '__main__' : 
-    (inst,attr,clas) = A.read_file()
+    (inst,attr,clas) = A.read_file()#"car.csv")
     candidates = [k for k in attr]
     ida = A.id3(inst,attr,clas,candidates)
     print toDOT(ida)

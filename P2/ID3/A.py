@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import csv
+import math
 from sets import Set
 
 # ----------- si debug esta activo solo analiza 10 instancias
-DEBUG = True
+DEBUG = False
 # -----------
 
 
@@ -16,7 +17,7 @@ Input:
 Return:
    List of instance for each file line.
 """
-def read_file( filename = "car.csv" ):
+def read_file( filename = "lens.csv" ):
     infile = open(filename,"r")
     reader = csv.reader(infile)
     # variables que se van a devolver
@@ -96,7 +97,7 @@ n        return new Hoja(cj);
         return (cp,[])
 
     # elegimos el siguiente atributo por el cual se va a dividir el arbol
-    attr = selecciona_atributo(inst,candidates)
+    attr = selecciona_atributo(inst,candidates,attrib_dic)
 
     # preparamos el nodo para este atributo
     nodo = (attr,[])
@@ -141,12 +142,6 @@ def particion(instances,attr_pos,value):
     # devuelve el subconjunto de instancias cuyo atributo coincide con el valor pedido
     return [i for i in instances if i[attr_pos] == value]
 
-def selecciona_atributo(inst,candidates):
-    # ###########################################################################
-    # OJO!! hay q completar esta funcion, sin ella no es id3 sino un mero tidit #
-    # ###########################################################################
-    return candidates[0]
-
 def maxClass(classes):
     # contamos el numero de instancias que tienen cada clase
     # ademas devuelve si todas tienen la misma o no
@@ -157,15 +152,93 @@ def maxClass(classes):
         if d.has_key(c):
             d[c] += 1
         else:
-            d[c] = 0
+            d[c] = 1
         if d[c] > maxV:
             mC = c
             maxV = d[c]
     return (mC, maxV == len(classes))
 
 
+# ###################################################
+# El codigo de arriba es reutilizable para C4.5     #
+# y para 5...(nuestro trabajo final en principio... #
+# de aqui para abajo es la magia de ID3, eligiendo  #
+# el atributo basandose en la entropia              #
+# ###################################################
+
+
+def selecciona_atributo(insts,candidates,attrib_dic):
+    # Hay que seleccionar el que mayor ganancia nos da
+    # return max([ganancia(insts,p) for p in candidates])
+    
+    # pero en realidad no devolvemos la ganacia sino 
+    # la entropia si seleccionamos ese atributo
+    # por lo que debemos coger el minimo
+    minC = 1000
+    v = 0
+    for attr in candidates:
+        attr_pos = attrib_dic[attr][0]
+        aux = entropia_attr(insts,attr_pos)
+        if(aux < minC):
+            minC = aux
+            v = attr
+    return v
+
+
+def entropia(insts):
+    """
+    Calcula la entropia de las instancias.
+    """
+    d = {}
+    entropia = 0
+    N = len(insts)*1.0
+    # contamos el numero de veces que aparece cada clase
+    for i in insts:
+        if (d.has_key(i[-1])):
+            d[i[-1]] += 1
+        else:
+            d[i[-1]]  = 1
+
+    # Calculamos la entropia -sum(si/N * log2(si/N))
+    for val in d:
+        aux = d[val]/N
+        entropia += aux * math.log(aux, 2)
+        
+    return -1.0*entropia
+
+def entropia_attr(insts, attr_pos):
+    """
+    Calcula la entropia si seleccionamos un atributo
+    """
+    d = {}
+    E_new = 0
+    N = len(insts)*1.0
+    # contamos el numero de veces que aparece cada valor
+    for i in insts:
+        if (d.has_key(i[attr_pos])):
+            d[i[attr_pos]] += 1
+        else:
+            d[i[attr_pos]]  = 1
+
+    # Calcula la suma total de entropia a partir de las entropias
+    # paciales por la cantidad de veces que aparece
+    # E_new = sum (si*E_i)/N
+    for val in d:
+        C = particion(insts,attr_pos,val) 
+        E_new += d[val] * entropia(C)
+
+    E_new = E_new / N
+
+    # si quisieramos la ganancia
+    # E_start = entropia(insts)
+    # Ganancia = E_start - E_new
+    # return E_start - E_new
+
+    return E_new
+
 if __name__ == '__main__' : 
     (inst,attr,clas) = read_file()
     candidates = [k for k in attr]
     print id3(inst,attr,clas,candidates)
+    print clas
 
