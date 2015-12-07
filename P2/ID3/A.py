@@ -174,7 +174,7 @@ def selecciona_atributo(insts,candidates,attrib_dic):
     # pero en realidad no devolvemos la ganacia sino 
     # la entropia si seleccionamos ese atributo
     # por lo que debemos coger el minimo
-    minC = 1000
+    minC = float('inf')
     v = 0
     for attr in candidates:
         attr_pos = attrib_dic[attr][0]

@@ -26,14 +26,18 @@ def dotNodo(Nodo,n):
         # dado que puede repetirse el nombre en los hijos
         n+=1
         # ######## Id del Nodo       ->  id de su hijo  [ valor del atributo que divide]
-        dot += "\t"+Nodo[0]+str(m)+" -> "+child[0]+str(n)+' [label="'+child[2]+'"];\n'
-        # ######### Id del hijo      [nombre que se va a mostrar]
-        dot += "\t"+child[0]+str(n)+' [label="'+child[0]+'"];\n'
+
         if len(child[1]) == 0:
+            dot += "\t"+Nodo[0]+str(m)+" -> "+child[0]+str(m)+' [label="'+child[2]+'"];\n'
+            # ######### Id del hijo      [nombre que se va a mostrar]
+            dot += "\t"+child[0]+str(m)+' [label="'+child[0]+'"];\n'
             # es una hoja y por tanto una clase le damos un aspecto diferente
             # ademas no mandamos escribir sus hijos
-            dot += "\t"+child[0]+str(n)+ '[style="filled", color="red"];\n'
+            dot += "\t"+child[0]+str(m)+ '[style="filled", color="red"];\n'
         else:
+            dot += "\t"+Nodo[0]+str(m)+" -> "+child[0]+str(n)+' [label="'+child[2]+'"];\n'
+            # ######### Id del hijo      [nombre que se va a mostrar]
+            dot += "\t"+child[0]+str(n)+' [label="'+child[0]+'"];\n'
             # si no es una hoja lo pintamos
             (d,n)= dotNodo(child,n)
             dot += d
@@ -41,7 +45,7 @@ def dotNodo(Nodo,n):
 
 
 if __name__ == '__main__' : 
-    (inst,attr,clas) = A.read_file()#"car.csv")
+    (inst,attr,clas) = A.read_file()
     candidates = [k for k in attr]
     ida = A.id3(inst,attr,clas,candidates)
     print toDOT(ida)
