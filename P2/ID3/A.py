@@ -9,15 +9,7 @@ DEBUG = False
 # -----------
 
 
-"""
-Function: read_file
-Descr:
-Input:
-   filename: CSV File name to be read.
-Return:
-   List of instance for each file line.
-"""
-def read_file( filename = "lens.csv" ):
+def read_file( filename = "car.csv" ):
     infile = open(filename,"r")
     reader = csv.reader(infile)
     # variables que se van a devolver
