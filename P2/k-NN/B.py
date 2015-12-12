@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-NUEVA IDEA:
- Si a enrique no le gusta que usemos el combiner. Se puede guardar en el mapper de maenra estática las k
- distancias más pequeñas que hemos emitido hasta el momento, y si es mayor no emitir la pareja. Si es menor,m
- emitir la pareja y actualizar lña lista estática de distancias.
-"""
-
-"""
  Sistemas de gestion de datos y de la informacion 
  Practica 2
  Luis Maria Costero Valero 
@@ -27,15 +20,16 @@ import os
 TESTPATH = "/home/hlocal/repos/sgdi/P2/k-NN/iris_test.csv"
 K = 5
 
-"""
-Function: toFloat
-Descr: 
-Input:
-  string: string to be converted
-Return:
-  float or string if we can not convert
-"""
 def toFloat(string):
+    """
+    Function: toFloat
+    Descrp: Convierte los string posibles a float.
+    Args:
+    -> string: string a convertir
+    Return:
+    -> float (o string si no se ha podido convertir)
+    """
+
     aux = string
     try:
         aux = float(string)
@@ -43,30 +37,34 @@ def toFloat(string):
         aux = string
     return aux
 
-"""
-Function: isNotFloat
-Descr: 
-Input:
-  string: string to be converted
-Return:
-  False is float True otherwise
-"""
+
 def isNotFloat(elem):
+    """
+    Function: isNotFloat
+    Descrp: Comprueba si el argumento es float.
+    Args:
+    -> elem: argumento a comprobar
+    Return:
+    -> booleano inidicando si es float
+    """
+
     try:
         a = float(elem)
     except:
         return True
     return False
 
-"""
-Function: read_file
-Descr:
-Input:
-   filename: CSV File name to be read.
-Return:
-   List of instance for each file line.
-"""
+
 def read_file( filename = "iris_test.csv" ):
+    """
+    Function: read_file
+    Descrp: Lee el archivo linea a linea y devuelve las instancias.
+    Args:
+    -> filename: CSV Nombre del archivo a leer
+    Return:
+    -> Lista de las instancias.
+    """
+
     infile = open(filename,"r")
     reader = csv.reader(infile)
     rows = []
@@ -76,9 +74,16 @@ def read_file( filename = "iris_test.csv" ):
     return rows[1:]
 
 
-
 def mode(l):
-    """ Devuelve la moda de la lista pasada """
+    """
+    Function: mode
+    Descrp: Devuelve la moda de la lista pasada.
+    Args:
+    -> l: lista
+    Return:
+    -> la moda de la lista
+    """
+
     max_num = -1
     moda = None
     dic={}
@@ -96,37 +101,64 @@ def mode(l):
     return moda
 
 
+
 class MRWordCount(MRJob):
 
 
     def mapper_init(self):
+        """
+        Parsea el fichero de test y lo almacena como atributo
+        de la clase.
+        Prepara el diccionario que se va a utilizar para guardar
+        las K instancias más próximas en este nodo map a cada
+        instancia.
+        """
         self.testset = read_file(TESTPATH)
         self.dic = {}
+
         for t in self.testset:
-            self.dic[str(t)] = Queue.PriorityQueue(K)
+            self.dic[str(t)] = []
+
 
     def mapper(self, key, line):
+        
         w = line.split(',')
         if isNotFloat(w[0]):
+            # Saltamos la primera linea del archivo
             return
+        # convierte cada atributo de la instancia en float si puede
         w = map(toFloat,w)
         for t in self.testset:
+            # por cada instancia en el test calcula la distancia
+            # con la instancia a evaluar.
             dis = distance.euclidean(t[:-1],w[:-1])
-            self.dic[str(t)].put((dis,w[-1]))
-            # yield t,(dis,w[-1])
-            yield t ,(float('inf'),"caca")
+            if len(self.dic[str(t)]) < K:
+                # si la lista de instancias tiene espacio añadimos la nueva
+                self.dic[str(t)].append((dis,w[-1]))
+            elif self.dic[str(t)][-1][0] > dis:
+                # si no tiene espacio y la distancia actual 
+                # es menor que la mayor de la lista
+                self.dic[str(t)].append((dis,w[-1]))
+                # ordenamos y nos quedamos con los K primeros
+                self.dic[str(t)] = sorted(self.dic[str(t)])[:K]
+
 
     def mapper_final(self):
-        print "A"
         for t in self.testset:
+            # por cada instancia del test
             key = str(t)
-            while not self.dic[key].empty():
-                yield (t, self.dic[key].get())
+            # emitimos los K (o menos de K) instancias más próximas
+            for inst in self.dic[key]:
+                yield (t, inst)
 
 
     def reducer(self, key, values):
+        # ordenamos todas las instancias por su primera componente
+        # es decir, la distancia, y nos quedamos con los K primeros
         par = sorted(values)[:K]
+        # nos quedamos solo con las instancias
         par = [p[1] for p in par]
+        # y publicamos la moda de la lista
         yield key, mode(par)
 
 
