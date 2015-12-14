@@ -28,12 +28,12 @@ def dotNodo(Nodo,n):
         # ######## Id del Nodo       ->  id de su hijo  [ valor del atributo que divide]
 
         if len(child[1]) == 0:
-            dot += "\t"+Nodo[0]+str(m)+" -> "+child[0]+str(m)+' [label="'+child[2]+'"];\n'
+            dot += "\t"+Nodo[0]+str(m)+" -> "+child[0]+str(n)+' [label="'+child[2]+'"];\n'
             # ######### Id del hijo      [nombre que se va a mostrar]
-            dot += "\t"+child[0]+str(m)+' [label="'+child[0]+'"];\n'
+            dot += "\t"+child[0]+str(n)+' [label="'+child[0]+'"];\n'
             # es una hoja y por tanto una clase le damos un aspecto diferente
             # ademas no mandamos escribir sus hijos
-            dot += "\t"+child[0]+str(m)+ '[style="filled", color="red"];\n'
+            dot += "\t"+child[0]+str(n)+ '[style="filled",shape=box,fillcolor="cornsilk3", color="red"];\n'
         else:
             dot += "\t"+Nodo[0]+str(m)+" -> "+child[0]+str(n)+' [label="'+child[2]+'"];\n'
             # ######### Id del hijo      [nombre que se va a mostrar]

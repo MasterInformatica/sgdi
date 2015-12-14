@@ -11,6 +11,7 @@
 
 import matplotlib.pyplot as plt
 from scipy.spatial import distance
+import pylab
 import A
 
 
@@ -109,13 +110,55 @@ if __name__ == "__main__":
     co_r = []
     co_d = []
     co_p = []
+
+    #Jugamos con los máximos y minimos
+    r_max = []
+    d_max = []
+    r_min = []
+    d_min = []
+
     K = range(2,21) # K = [2..20]
+
     for k in K:
         print "-------------",k,"-------------"
         res = A.kmeans(k, instancias)
         co_d.append(media([coherencia_diametro(res[0][c]) for c in res[0]]))
         co_r.append(media([coherencia_radio(res[0][c]) for c in res[0]]))
         co_p.append(coherencia_promedio(res[0]))
-    plot(K,co_d,"diametro")
-    plot(K,co_r,"radio")
+
+        d_max.append(max([coherencia_diametro(res[0][c]) for c in res[0]]))
+        r_max.append(max([coherencia_radio(res[0][c]) for c in res[0]]))
+
+        d_min.append(min([coherencia_diametro(res[0][c]) for c in res[0]]))
+        r_min.append(min([coherencia_radio(res[0][c]) for c in res[0]]))
+
+
+    # plot(K,co_d,"diametro")
+    # plot(K,co_r,"radio")
+    # plot(K,co_p,"promedio")
+
+
+
+
+
+    fig, ax = plt.subplots()
+    ax.plot(K, co_d, 'b-o', label='media')
+    ax.plot(K, d_max, 'r-o', label='maximo')
+    ax.plot(K, d_min, 'r-o', label='minimo')
+    plt.ylabel('Coherencia diametro')
+    plt.xlabel('K')
+    ax.legend(loc='upper right')
+    plt.show()
+
+
+    fig, ax = plt.subplots()
+    ax.plot(K, co_r, 'b-o', label='media')
+    ax.plot(K, r_max, 'r-o', label='maximo')
+    ax.plot(K, r_min, 'r-o', label='minimo')
+    plt.ylabel('Coherencia radio')
+    plt.xlabel('K')
+    ax.legend(loc='upper right')
+    plt.show()
+
     plot(K,co_p,"promedio")
+
