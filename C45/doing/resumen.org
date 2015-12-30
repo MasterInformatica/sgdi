@@ -1,0 +1,9 @@
+Archivo para ir plasmando las ideas antes de realizar las diapositivas:
+Luisma random forest
+Jesús C4.5 y C5.0 (público y privado)
+
+* C4.5
+
+* C5.0
+
+* Random Forest
