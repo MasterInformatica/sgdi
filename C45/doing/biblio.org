@@ -1,0 +1,8 @@
+Archivo para bibliografia... ya haremos el archivo para tex
+
+* C4.5
+
+* C5.0
+
+* Random Forest
+
