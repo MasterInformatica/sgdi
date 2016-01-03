@@ -2,8 +2,26 @@ Archivo para ir plasmando las ideas antes de realizar las diapositivas:
 Luisma random forest
 Jesús C4.5 y C5.0 (público y privado)
 
-* C4.5
+* C4.5 (También llamado J48)
+- C4.5 es un algoritmo usado para generar un árbol de decision desarrollado por Ross Quinlan.
+- C4.5 es una extensión del algoritmo ID3.
+- Se diferencia en la seleccion del atributo: Dejar que a_best sea el atributo con la ganancia de información normalizada más alta.
+** Mejoras respecto ID3
+*** Permite atributos continuos y discretos
+A fin de manejar atributos continuos, C4.5 crea un umbral y luego se divide la lista en aquellos cuyo valor de atributo es superior al umbral y los que son menores o iguales a él.
+*** Permite valores de atributos faltantes
+C4.5 permite valores de los atributos para ser marcado como "?" para faltantes. Los valores faltantes de los atributos simplemente no se usa en los cálculos de la ganancia y la entropía.
+*** Permite atributos con costos diferentes
+*** Podando árboles después de la creación
+C4.5 se remonta a través del árbol una vez que ha sido creado e intenta eliminar las ramas que no ayudan, reemplazándolos con los nodos de hoja.
 
 * C5.0
+Licencia Comercial. Existe una para un solo proceso con licencia GPL.
+** Mejoras respecto C4.5
+*** Rendimiento
+*** Memoria
+*** Tamaño del árbol
+*** Poda de atributos irrelevantes
+*** Ponderación de atributos más precisa
 
 * Random Forest
