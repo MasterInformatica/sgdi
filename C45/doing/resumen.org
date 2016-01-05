@@ -3,17 +3,25 @@ Luisma random forest
 Jesús C4.5 y C5.0 (público y privado)
 
 * C4.5 (También llamado J48)
-- C4.5 es un algoritmo usado para generar un árbol de decision desarrollado por Ross Quinlan.
+- C4.5 es un algoritmo usado para generar un árbol de decision desarrollado
+  por Ross Quinlan.
 - C4.5 es una extensión del algoritmo ID3.
-- Se diferencia en la seleccion del atributo: Dejar que a_best sea el atributo con la ganancia de información normalizada más alta.
+- Se diferencia en la seleccion del atributo: Dejar que a_best sea el
+  atributo con la ganancia de información normalizada más alta.
 ** Mejoras respecto ID3
 *** Permite atributos continuos y discretos
-A fin de manejar atributos continuos, C4.5 crea un umbral y luego se divide la lista en aquellos cuyo valor de atributo es superior al umbral y los que son menores o iguales a él.
+A fin de manejar atributos continuos, C4.5 crea un umbral y luego se divide
+la lista en aquellos cuyo valor de atributo es superior al umbral y los que
+son menores o iguales a él.
 *** Permite valores de atributos faltantes
-C4.5 permite valores de los atributos para ser marcado como "?" para faltantes. Los valores faltantes de los atributos simplemente no se usa en los cálculos de la ganancia y la entropía.
+C4.5 permite valores de los atributos para ser marcado como "?" para
+faltantes. Los valores faltantes de los atributos simplemente no se usa en
+los cálculos de la ganancia y la entropía.
 *** Permite atributos con costos diferentes
 *** Podando árboles después de la creación
-C4.5 se remonta a través del árbol una vez que ha sido creado e intenta eliminar las ramas que no ayudan, reemplazándolos con los nodos de hoja.
+C4.5 se remonta a través del árbol una vez que ha sido creado e intenta
+eliminar las ramas que no ayudan, reemplazándolos con los nodos de hoja.
+
 
 * C5.0
 Licencia Comercial. Existe una para un solo proceso con licencia GPL.
@@ -24,4 +32,54 @@ Licencia Comercial. Existe una para un solo proceso con licencia GPL.
 *** Poda de atributos irrelevantes
 *** Ponderación de atributos más precisa
 
+
+
 * Random Forest
+** Main idea
+   La idea principal de los random forest es que, en vez de tener un único
+   árbol de clasificación, tener varios árboles, y cuando se quiera
+   clasificar una instancia, tener en cuenta el resultado de todos los
+   árboles sobre esa instancia .
+   Faltaría por aclarar dos temas:
+     (a) Cómo generar varios árboles de decisión con el mismo conjunto de
+     entrenamiento.
+     (b) Cómo generar un árbol en concreto.
+     (c) una vez que se tienen todos los árboles, como utilizarlos para
+     clasificar una nueva instancia.
+
+
+NOTA: No se cuantos árboles hay que crear, ni nada de ese estilo. Mirar a
+ver como se hace.
+
+** Como generar varios árboles (Completar y ampliar).
+   - Para generar varios árboles de clasificación a partir de un mismo
+   conjunto de entrenamiento se utiliza lo conocido como "Bootstrap
+   sample" (¿¿Revisar nombre?). 
+   - Es decir, de todo el conjunto de entrenamiento, se escoge un
+   subconjunto de forma aleatoria de instancias, y se realiza el árbol de
+   clasificación para esas instancias seleccionadas.
+   - Normalmente, la selección de las instancias no se hace de manera
+     totalmente aleatoria, sino que se hace por reemplazamiento de
+     instancias antiguas por instancias nuevas, en vez de volver a
+     seleccionar todas las instancias otra vez.
+   
+** Como generar un árbol en concreto.
+   - Al igual que en ID3, en cada nodo hay que decidir por qué atributo
+     distinguir. Existen múltiples técnicas (estudiar a ver). 
+   - Lo normal, para minimizar la carga de trabajo, las técnicas se aplican
+     solo sobre m atributos escogidos al azar, y no sobre todos los
+     posibles.
+
+** Como decidir la clase de una instancia.
+   Una vez aue se tienen todos los árboles y se desea clasificar una
+   instancia nueva, se calcula la clase que predicen todos los árboles
+   para esa instancia. Según el problema, se pueden tomar distintas
+   decisiones:
+     - Realizar una decisión por encuesta. La clase final es aquella que
+       esté más repetida (moda).
+     - Puesto que para generar un árbol hay instancias que no se utilizan,
+       se pueden utilizar estas instancias para comprobar como de bueno es
+       ese árbol. Para escoger la clase final, en vez de escoger la clase
+       que más se repite, se realiza una especie de media
+       aritmética/ponderada teniendo en cuenta como de bueno es ese
+       árbol. (Bagging)

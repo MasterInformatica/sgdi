@@ -4,5 +4,18 @@ Archivo para bibliografia... ya haremos el archivo para tex
 
 * C5.0
 
+
 * Random Forest
 
+** Understanding Random forests. From theory to practice (slideshare)
+   http://es.slideshare.net/glouppe/understanding-random-forests-from-theory-to-practice
+** Otro slideshare
+   http://es.slideshare.net/m80m07/random-forest
+** Youtube tutorial (english / Portuguese)
+   https://www.youtube.com/watch?v=loNcrMjYh64
+** Youtube tutorial (english / Indian)
+   https://www.youtube.com/watch?v=LIPtRVDmj1M
+** Libro/Articulo:
+   (Es el que recomiendan en el video de arriba):
+   
+   http://0-link.springer.com.cisne.sim.ucm.es/article/10.1023%2FA%3A1010933404324
