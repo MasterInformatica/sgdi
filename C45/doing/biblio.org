@@ -1,7 +1,8 @@
 Archivo para bibliografia... ya haremos el archivo para tex
 
 * C4.5
-
+** Slideshare
+   http://es.slideshare.net/aorriols/lecture6-c45?next_slideshow=1
 * C5.0
 
 

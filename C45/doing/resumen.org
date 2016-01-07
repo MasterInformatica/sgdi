@@ -32,7 +32,6 @@ los cálculos de la ganancia y la entropía.
 C4.5 se remonta a través del árbol una vez que ha sido creado e intenta
 eliminar las ramas que no ayudan, reemplazándolos con los nodos de hoja.
 
-
 * C5.0
 Licencia Comercial. Existe una para un solo proceso con licencia GPL.
 ** Mejoras respecto C4.5
@@ -44,52 +43,86 @@ Licencia Comercial. Existe una para un solo proceso con licencia GPL.
 
 
 
+
 * Random Forest
 ** Main idea
    La idea principal de los random forest es que, en vez de tener un único
    árbol de clasificación, tener varios árboles, y cuando se quiera
    clasificar una instancia, tener en cuenta el resultado de todos los
-   árboles sobre esa instancia .
-   Faltaría por aclarar dos temas:
+   árboles sobre esa instancia.
+   Faltaría por aclarar varios temas:
      (a) Cómo generar varios árboles de decisión con el mismo conjunto de
      entrenamiento.
      (b) Cómo generar un árbol en concreto.
-     (c) una vez que se tienen todos los árboles, como utilizarlos para
+     (c) Una vez que se tienen todos los árboles, como utilizarlos para
      clasificar una nueva instancia.
 
-
-NOTA: No se cuantos árboles hay que crear, ni nada de ese estilo. Mirar a
-ver como se hace.
-
-** Como generar varios árboles (Completar y ampliar).
-   - Para generar varios árboles de clasificación a partir de un mismo
-   conjunto de entrenamiento se utiliza lo conocido como "Bootstrap
-   sample" (¿¿Revisar nombre?). 
-   - Es decir, de todo el conjunto de entrenamiento, se escoge un
-   subconjunto de forma aleatoria de instancias, y se realiza el árbol de
-   clasificación para esas instancias seleccionadas.
-   - Normalmente, la selección de las instancias no se hace de manera
-     totalmente aleatoria, sino que se hace por reemplazamiento de
-     instancias antiguas por instancias nuevas, en vez de volver a
-     seleccionar todas las instancias otra vez.
+** Como generar varios árboles (Bagging, o bootstrap aggregating)
+   - La técnica usada es la de Bagging, o Bootstrap aggregating.
+   - Dado un conjunto de entrenamiento D de tamaño n, se generan B nuevos
+     subconjuntos de entrenamiento de tamaño n', mediante un muestreo
+     aleatorio con reemplazamiento.
+   - Con reemplazamiento significa que las muestras ya escogidas pueden
+     volver a ser escogidas como muestras posteriores, sin ser marcadas ni
+     nada parecido.
+   - El número de subconjuntos escogidos B ( o árboles resultantes) es un
+     parámetro libre y depende del problema y de la persona que diseñe el
+     algoritmo.
+   - NOTA: aunque el número B es un parámetro libre, no he encontrado
+     ninguna referencia al valor de n'.
    
 ** Como generar un árbol en concreto.
-   - Al igual que en ID3, en cada nodo hay que decidir por qué atributo
-     distinguir. Existen múltiples técnicas (estudiar a ver). 
-   - Lo normal, para minimizar la carga de trabajo, las técnicas se aplican
-     solo sobre m atributos escogidos al azar, y no sobre todos los
-     posibles.
+   - Se utiliza una técnica llamada "feature bagging".
+   
+   - La novedad de los random foresst es que para generar un árbol, en cada
+     nodo split, en vez de decidir por qué atributo hacer la selección
+     sobre el conjunto total de atributos restantes, se realiza sobre un
+     conjunto de atributos aleatorios más pequeño.
+   - El objetivo de esta técnica es que si un atributo es muy decisivo en
+     un árbol, seguramente lo sea también en los otros árboles, produciendo
+     que los árboles estén muy correlacionados, y caigan en los mismos
+     errores.
+   - El número de atributos aleatorios que se suele utilizar para decidir
+     por qué atributo hacer el split, suele ser el siguiente:
+       Si hay p atributos posibles, se escogen de manera aleatoria
+     floor(sqrt(p)) atributos y se utiliza cualquier técnica de decisión
+     (por ejemplo, aquel que aumenta más la ganancia de información como en ID3).
 
-** Como decidir la clase de una instancia.
-   Una vez aue se tienen todos los árboles y se desea clasificar una
-   instancia nueva, se calcula la clase que predicen todos los árboles
-   para esa instancia. Según el problema, se pueden tomar distintas
-   decisiones:
-     - Realizar una decisión por encuesta. La clase final es aquella que
-       esté más repetida (moda).
-     - Puesto que para generar un árbol hay instancias que no se utilizan,
-       se pueden utilizar estas instancias para comprobar como de bueno es
-       ese árbol. Para escoger la clase final, en vez de escoger la clase
-       que más se repite, se realiza una especie de media
-       aritmética/ponderada teniendo en cuenta como de bueno es ese
-       árbol. (Bagging)
+** Como decidir la clase de una instancia
+   Una vez que se tienen todos los árboles y se desea clasificar una 
+   instancia nueva, se calcula la clase que predicen todos los árboles para
+   esa instancia, y se toma una decisión a partir de todos los resultados:
+     - Si el problema es de clasificación (NUESTRO CASO), la clase
+       final es aquella que más veces ha salido (la moda).
+     - Si el problema es de regresión (una lástima que no lo hayamos visto
+       en clase), se puede tomar la media aritmética de todas las medidas
+       previstas, algo del estilo \frac{1}{N}*\sum_{i=1}^{N} f_x(i).
+
+       
+** Definiciones / ideas varias / palabros raros
+   - Bagging (Bootstrap aggregating): Dado un conjunto de entrenamiento D
+     de tamaño n, la técnica genera m nuevos conjuntos de entrenamiento de
+     tamaño n'. Para generarlo, realiza un muestreo aleatorio por
+     reemplazamiento.
+   - Muestreo aleatorio con reemplazamiento: La idea es que las muestras
+     escogidas para una selección pueden ser escogidas para selecciones
+     posteriores, sin ser marcadas de ninguna manera especial.
+     
+** Ventajas e inconvenientes
+   - Disminuye la varianza sin aumentar el rango de error. Esto significa
+     que aunque las predicciones de un único árbol son altamente sensibles
+     al ruido de su conjunto de entrenamiento, la media de todos los
+     árboles no lo son. 
+     
+     
+** TODO's
+   - Mirar ventajas y desventajas.
+
+** Extra
+   - Existe un ExtraTree, que son árboles extra random, donde en cada nodo
+     split, en vez de escoger el atributo que de más ganancia de
+     información, se escoge de forma aleatoria. En algunos casos da
+     resultados buenos.
+     No se si esto mencionarlo o no. Se puede mencionar haciendo referencia
+     al artículo. 
+
