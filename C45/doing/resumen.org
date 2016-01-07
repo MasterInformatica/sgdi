@@ -2,8 +2,18 @@ Archivo para ir plasmando las ideas antes de realizar las diapositivas:
 Luisma random forest
 Jesús C4.5 y C5.0 (público y privado)
 
+
+* Introduccion
+Vamos a hablar de los algoritmos C4.5 y C5.0 que son mejoras al
+algoritmo ID3 que vimos en clase y también hablaremos de "Random
+Forest" que es un algoritmo de clasificación basado en bosques de
+árboles de clasificación. Comenzamos:
+
+En primer lugar, vamos a recordar que es esto del ID3. Como vimos en
+clase, dado un conjunto de instancias que tienen una clase podemos
+construir un árbol que nos ayuda a clasificar
 * C4.5 (También llamado J48)
-- C4.5 es un algoritmo usado para generar un árbol de decision desarrollado
+- C4.5 es un algoritmo usado para generar un árbol de clasificación desarrollado
   por Ross Quinlan.
 - C4.5 es una extensión del algoritmo ID3.
 - Se diferencia en la seleccion del atributo: Dejar que a_best sea el
