@@ -1,0 +1,20 @@
+digraph T {
+	bgcolor=transparent
+			
+
+	Wind [label="Wind"]
+	Wind -> Allno1 [label="High"]
+	Wind -> Temp [label="Low"]
+
+	Allno1 [label="All No", style="filled",fillcolor="darkolivegreen2"]
+
+	Temp [label="Temp"]	
+	Temp -> Allno2 [label="Cold"]
+	Temp -> None [label="Hot"]
+	Temp -> Allyes [label="Warm"]
+
+	Allno2 [label="All No", style="filled", fillcolor="darkolivegreen2"]
+	None [label="None", style="filled", fillcolor="cornflowerblue"]
+	Allyes [label="All Yes", style="filled", fillcolor="coral"]
+	
+}
