@@ -16,7 +16,7 @@ construir un árbol que nos ayuda a clasificar nuevas instancias en
 dichas clases. 
 
 Para ello usábamos esta estructura de código que generaliza los TDIDT
-(Top-Down I Decision Tree). Y el ID3 se caracterizaba por definir la
+(Top-Down Induction Decision Tree). Y el ID3 se caracterizaba por definir la
 función "selecciona_atributo" como dar el atributo que nos da mayor
 ganancia de información que es lo mismo que decir que el atributo deja
 menor entropía después de dividir por él.
@@ -69,7 +69,17 @@ Como podemos observar para este conjunto de datos nos deja el mismo
 árbol.. y para este otro no nos deja ejecutar el ID3 al tener valores
 de atributos continuos.
 
+** algoritmo
+El algoritmo sigue el mismo esquema TDIDT los cambios son:
+*** Uso de funciones test para hacer las particiones del conjunto original
+*** Calculo de la ganancia de información basado en una normalización (ponderación)
+
 * C5.0
+Pero todo no es de color de rosa en C4.5, existen diversos articulos y
+comentarios acerca de la precisión de C4.5 cuando hay muchos atributos
+continuos
+"Auer,Holte and Maass(1995)" -> T2 es mejor q C4.5 en dichos casos
+"dougherty,Kohavi and Sahami(1995)" -> No aprovecha la discretizacion local
 
 
 Licencia Comercial. Existe una para un solo proceso con licencia GPL.
