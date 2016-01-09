@@ -1,0 +1,19 @@
+digraph T {
+	bgcolor=transparent
+			
+
+	Wind [label=""]
+	Wind -> dcha1
+	Wind -> izq1
+
+
+	dcha1 [label="", style="filled",fillcolor="darkolivegreen2"]
+
+	izq1 [label=""]
+
+	izq1 -> izq11
+	izq1 -> dcha11 
+
+	izq11 [label="", style="filled", fillcolor="darkslategray1"]
+	dcha11 [label="", style="filled", fillcolor="coral"]
+}
