@@ -2,6 +2,12 @@
 
 \usetheme{m}
 
+\usepackage{times}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{fancyvrb}
+\usepackage{xspace}
+
 \usepackage{booktabs}
 \usepackage[scale=2]{ccicons}
 
@@ -21,6 +27,18 @@
 \institute{Enero 2016}
 
 \titlegraphic{\hfill\includegraphics[scale=0.2]{images/portada.png}}
+
+\definecolor{bgg}{HTML}{FBFBFB}
+\def\gcolor{bgg}    % while presenting
+%\def\gcolor{black} % while developing
+
+\def\tikzpicdim{
+  \draw[step=0.1cm, color=\gcolor] (0,-1) grid (12,7);
+  \draw[step=1cm, color=\gcolor] (0,-1) grid (12,7);
+}
+
+\let\tikzpicdimlarge\tikzpicdim
+
 
 \metroset{inner/sectiontitleformat=regular}
 \metroset{outer/frametitleformat=regular}

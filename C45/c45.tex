@@ -8,6 +8,7 @@
 
 \begin{frame}
   \frametitle{ID3}
+\includegraphics[width=\textwidth]{./images/esquemaID3.png}
 \end{frame}
 
 %=================================================
@@ -15,20 +16,67 @@
 %=================================================
 \begin{frame}
   \frametitle{C4.5}
-% Mejoras respecto a ID3
+  El algoritmo ID3 es mejorado por el C4.5. Esta mejora, aparte de la
+  optimización de partes de código, incluye:
+  \begin{itemize}
+  \item Permite atributos continuos.
+  \item Permite dar un peso diferente a cada atributo.
+  \item Permite a una instancia no tener definido un valor en sus
+    atributos.
+  \item Mejora la selección del atributo clasificador.
+  \item Realiza una poda del árbol después de la creación.
+  \end{itemize}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Algoritmo C4.5}
-% Como? implementacion
+  \begin{tikzpicture}
+    \tikzpicdimlarge
+    \only<1->{\node[] (def) at (0.5,6) {
+        \begin{minipage}{0.9\textwidth}
+          \textcolor{purple}{\textbf{Funciones Test:}}
+          Para calcular los subconjuntos de instancias al clasificar
+          por un atributo se utilizan funciones test de tipo $x >
+          40$ ó $x < 4$ ó $ x = soleado$.
+        \end{minipage}
+      };}
+
+    \only<2->{\node[] (def) at (0.5,2) {
+
+        \begin{minipage}{0.9\textwidth}
+          \textcolor{purple}{\textbf{Selección del atributo:}}
+          La selección del atributo por el que dividir consiste en
+          escoger el atributo con mayor ganancia de información
+          normalizado y ponderado. \\
+
+          Para ello, se tiene en cuenta la proporción de instancias
+          que queda en cada rama para el atributo candidato y el peso
+          de importancia dado a dicho atributo.\\
+          
+          La fórmula queda para el atributo $i$, siendo D el
+          conjunto de instancias
+          $$ Ganancia_i = Peso_i * \sum_j \frac{|D_j|}{|D|} * Info_j $$
+        \end{minipage}
+      };}
+  \end{tikzpicture}
+
 \end{frame}
 
-\begin{frame}
-  \frametitle{Ejemplo}
+\begin{frame}[fragile]
+  \frametitle{Ejemplo --  Árbol y Construcción de Reglas}
+\begin{tikzpicture}
+\tikzpicdimlarge
+\only<1->{\node[] () at (0,9)
+  {\includegraphics[width=0.65\textwidth]{images/C45tree.png}};}
+\only<2->{\node[] () at (0,5)
+  {\includegraphics[width=0.65\textwidth]{images/C45rule.png}};}
+
+\end{tikzpicture}
 \end{frame}
 
 \begin{frame}
   \frametitle{Mejoras a C4.5}
+
 \end{frame}
 
 %=================================================
