@@ -3,21 +3,27 @@
 %=================================================
 \begin{frame}
   \frametitle{Introducción}
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{tabular}{ccccc} 
+        $attr_1$ & $attr_2$ & $\cdots$ & $attr_m$ & $clase$ \\ \hline 
+        $a_{11}$ & $a_{12}$ & $\cdots$ & $a_{1m}$ & Rojo \\
+        $a_{21}$ & $a_{22}$ & $\cdots$ & $a_{2m}$ & Verde \\ 
+        $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ \\ 
+        $a_{11}$ & $a_{12}$ & $\cdots$ & $a_{1m}$ & Rojo \\ \hline
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1>[width=\textwidth]{images/randomForest/1arbol.png}
+      \includegraphics<2->[width=\textwidth]{images/randomForest/bosque.png}
+    \end{column}
+  \end{columns}
 
-  \begin{tabular}{ccccc} 
-    $attr_1$ & $attr_2$ & $\cdots$ & $attr_m$ & $clase$ \\ \hline 
-    $a_{11}$ & $a_{12}$ & $\cdots$ & $a_{1m}$ & Rojo \\
-    $a_{21}$ & $a_{22}$ & $\cdots$ & $a_{2m}$ & Verde \\ 
-    $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ \\ 
-    $a_{11}$ & $a_{12}$ & $\cdots$ & $a_{1m}$ & Rojo \\ \hline
-  \end{tabular}
 
-  \vspace{2.5cm} % Truco sucio para dar espacio. Cuando esté la imagen de
-               % encima se cambia esto.
-  %% Truco sucio para sacar el cuadro fuera de los márgenes
   \begin{columns}
     \begin{column}{0.95\paperwidth}
-      \begin{block}{Ideas (\textcolor{red}{No me gusta este título})}
+      \begin{block}<3->{Ideas (\textcolor{red}{No me gusta este título})}
         \begin{itemize}
         \item ¿Cómo se clasifica una instancia?
         \item ¿Cómo se generan varios árboles con el mismo conjunto de
