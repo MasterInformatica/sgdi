@@ -98,11 +98,51 @@ clasifica(x):
 \end{frame}
 
 
-\begin{frame}
+\begin{frame}[t]
   \frametitle{Generación de árboles --- Selección de atributos}
+  \onslide<1->{
+    -- En un nodo split, ¿qué atributo escoger para hacer la división? --\\
+    \vspace{\baselineskip}
+  }
+  
+  \only<1>{
+    \textbf{ID3:} Escoger entre \texttt{todos} los atributos, aquel que
+    proporcione una mayor ganancia de información.\\
+    \vspace{\baselineskip}
+    \alert{Problemas:} 
+    \vspace{-0.5\baselineskip}
+    \begin{itemize}
+    \item Un atributo muy decisivo en un árbol seguramente también lo sea en
+      el resto de árboles, por lo que produciría árboles muy correlacionados.
+    \item Comparar entre todos los atributos en todos los árboles necesita
+      muchos recursos.
+    \end{itemize}
+  }
+
+  \only<2->{
+    \alert{Solución:} \textbf{Feature bagging}\footnote{Descrita
+      principalmente en~\cite{FeatureBagging}}
+    \begin{itemize}
+    \item En cada nodo split, observar solamente un subconjunto aleatorio
+      de tamaño $m'$ del conjunto de atributos restantes.
+    \item Sobre el subconjunto, escoger el que mayor ganancia de
+      información proporcione (similar a ID3).
+    \item Si el número de atributos totales es $m$, el subconjunto de
+      tamaño $m'$ se calcula de manera aleatoria, donde:\\
+$$
+      m' =
+      \left\{
+	\begin{array}{ll}
+          \lfloor \sqrt{m} \rfloor  & \mbox{si } \sqrt{m} \geq 5 \\
+          m &  c.c.
+	\end{array}
+      \right.
+$$
+\end{itemize}
+  }
+
+  
 \end{frame}
-
-
 
 %
 %
