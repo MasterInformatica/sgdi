@@ -37,7 +37,7 @@
 \begin{frame}
   \frametitle{Introducción -- II}
 
-  \begin{block}{Random forest\footnote{Técnica propuesta por primera vez en \cite{randomForest}.} (\textcolor{red}{No me gusta este título})}
+  \begin{block}{Random forest\footnote{Técnica propuesta por primera vez en \cite{randomForest}.}}
     \begin{itemize}
     \item ¿Cómo se clasifica una instancia?
     \item ¿Cómo se generan varios árboles con el mismo conjunto de
@@ -113,7 +113,7 @@ clasifica(x):
     \vspace{-0.5\baselineskip}
     \begin{itemize}
     \item Un atributo muy decisivo en un árbol seguramente también lo sea en
-      el resto de árboles, por lo que produciría árboles muy correlacionados.
+      el resto de árboles, por lo que producirá árboles muy correlacionados.
     \item Comparar entre todos los atributos en todos los árboles necesita
       muchos recursos.
     \end{itemize}
@@ -121,7 +121,7 @@ clasifica(x):
 
   \only<2->{
     \alert{Solución:} \textbf{Feature bagging}\footnote{Descrita
-      principalmente en~\cite{FeatureBagging}}
+      principalmente en~\cite{FeatureBagging}}:
     \begin{itemize}
     \item En cada nodo split, observar solamente un subconjunto aleatorio
       de tamaño $m'$ del conjunto de atributos restantes.

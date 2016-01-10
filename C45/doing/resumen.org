@@ -142,10 +142,10 @@ summary( model )
      que los árboles estén muy correlacionados, y caigan en los mismos
      errores.
    - El número de atributos aleatorios que se suele utilizar para decidir
-     por qué atributo hacer el split, suele ser el siguiente:
-       Si hay p atributos posibles, se escogen de manera aleatoria
-     floor(sqrt(p)) atributos y se utiliza cualquier técnica de decisión
-     (por ejemplo, aquel que aumenta más la ganancia de información como en ID3).
+     por qué atributo hacer el split, suele ser el siguiente: Si hay p
+     atributos posibles, se escogen de manera aleatoria floor(sqrt(p))
+     atributos y se utiliza cualquier técnica de decisión (por ejemplo,
+     aquel que aumenta más la ganancia de información como en ID3).
 
 ** Como decidir la clase de una instancia
    Una vez que se tienen todos los árboles y se desea clasificar una 
