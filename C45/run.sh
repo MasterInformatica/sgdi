@@ -2,12 +2,13 @@
 
 
 SRC=$1
-
-pdflatex -shell-escape $SRC
-pdflatex -shell-escape $SRC
-
-
 FICH="${1%.*}"
+
+pdflatex -shell-escape $SRC
+bibtex $FICH
+pdflatex -shell-escape $FICH
+
+
 echo $FICH
 
 #Borramos lo que genera y no queremos
