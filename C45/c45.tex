@@ -19,12 +19,12 @@
   El algoritmo ID3 es mejorado por el C4.5. Esta mejora, aparte de la
   optimización de partes de código, incluye\footnote{Artículo con las bases del algoritmo \cite{quinlan1986induction}}:
   \begin{itemize}
-  \item Permite atributos continuos.
-  \item Permite dar un peso diferente a cada atributo.
-  \item Permite a una instancia no tener definido un valor en sus
+  \item Permitir atributos continuos.
+  \item Permitir dar un peso diferente a cada atributo.
+  \item Permitir a una instancia no tener definido un valor en sus
     atributos.
-  \item Mejora la selección del atributo clasificador.
-  \item Realiza una poda del árbol después de la creación.
+  \item Mejorar la selección del atributo clasificador.
+  \item Realizar una poda del árbol después de la creación.
   \end{itemize}
 \end{frame}
 
@@ -35,7 +35,7 @@
     \only<1->{\node[] (def) at (0.5,6) {
         \begin{minipage}{0.9\textwidth}
           \textcolor{purple}{\textbf{Split y Funciones Test:}}
-          Para divir en subconjuntos las instancias test se divide el
+          Para dividir en subconjuntos las instancias test se divide el
           dominio donde haya mayor ganancia de información. Esta
           división se traduce en funciones test de tipo $x > 40$ ó $x
           < 4$, y para atributos discretos $ x = soleado$. 
@@ -74,7 +74,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{C4.8 (J48)\footnote{Algoritmo utilizado en weka}: Mejoras a C4.5}
+  \frametitle{C4.8 (J48): Mejoras a C4.5}
   \begin{tikzpicture}
     \tikzpicdimlarge
     \only<1->{\node[] (def) at (0.5,6) {
@@ -82,16 +82,16 @@
           \textcolor{purple}{\textbf{Problemas:}}\\
         ``The accuracy of T2's trees rivalled or surpassed C4.5's on 8
         of the 15 datasets, including all but one of the datasets
-        having only continuous attributes.''\cite{auer1995theory}\\
+        having only continuous attributes.'' \cite{auer1995theory}\\
 
         ``C4.5's performance was significantly improved on two data
-        sets ... using the entropy discretization method and did no
+        sets [...] using the entropy discretization method and did no
         significantly degrade on any datasets [...] We conjeture that
         the C4.5 induction algorithm is not taking full advantage of
-        possible local discretization.''\cite{dougherty1995supervised}
+        possible local discretization.'' \cite{dougherty1995supervised}
         \end{minipage}
       };}
-    \only<2->{\node[] (def) at (0.5,2) {
+    \only<2->{\node[] (def) at (0.5,1.8) {
         \begin{minipage}{0.9\textwidth}
           \textcolor{purple}{\textbf{Solución \cite{quinlan1996improved}:}}
           \begin{itemize}
@@ -132,10 +132,10 @@
 \end{frame}
 
 \begin{frame}[fragile,fragile,fragile]
-\frametitle{C5.0: Example in R\footnote{Ejemplo obtenido de:
-    http://connor-johnson.com/2014/08/29/decision-trees-in-r-using-the-c50-package/}}
+\frametitle{C5.0: Ejemplo en R}
 \begin{tikzpicture}
 \tikzpicdimlarge
+
 \only<1->{\node[] (def) at (0.5,9) {
 \begin{minipage}{0.8\textwidth}
 crx$<$-read.table(file="./crx.data",header=FALSE,sep=",") \\
@@ -164,6 +164,13 @@ model $<$- C50::C5.0( trainX, trainy ) \\
 summary( model )}
 \end{minipage}
 };}
+\only<1->{\node[] (def) at (0.5,2) {
+\begin{minipage}{\textwidth}
+Ejemplo de C5.0 en R obtenido de:
+\myurl{http://connor-johnson.com}
+\end{minipage}
+};}
+
 
 \end{tikzpicture}
 \end{frame}
