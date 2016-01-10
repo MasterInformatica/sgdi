@@ -3,12 +3,12 @@
 %=================================================
 \begin{frame}
   \frametitle{TDIDT\footnote{Diapositiva sacada del temario de SGDI}}
-\includegraphics[width=\textwidth]{./images/esquemaTDIDT.png}
+\includegraphics[width=\textwidth]{./images/c45/esquemaTDIDT.png}
 \end{frame}
 
 \begin{frame}
   \frametitle{ID3\footnote{Diapositiva sacada del temario de SGDI}}
-\includegraphics[width=\textwidth]{./images/esquemaID3.png}
+\includegraphics[width=\textwidth]{./images/c45/esquemaID3.png}
 \end{frame}
 
 %=================================================
@@ -66,9 +66,9 @@
 \begin{tikzpicture}
 \tikzpicdimlarge
 \only<1->{\node[] () at (0,9)
-  {\includegraphics[width=0.65\textwidth]{images/ID3iris.png}};}
+  {\includegraphics[width=0.65\textwidth]{./images/c45/ID3iris.png}};}
 \only<2->{\node[] () at (0,5)
-  {\includegraphics[width=0.65\textwidth]{images/C45tree.png}};}
+  {\includegraphics[width=0.65\textwidth]{./images/c45/C45tree.png}};}
 
 \end{tikzpicture}
 \end{frame}
@@ -131,28 +131,40 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{C5.0: Example in R}
-
-  \begin{tikzpicture}
-    \tikzpicdimlarge
-    \only<1>{\node[] (def) at (0.5,6) {
-\begin{lstlisting}[frame=single, numbers=left]
-url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data"
-crx <- read.table( file=url, header=FALSE, sep="," )
-head( crx, 6 )
-crx <- crx[ sample( nrow( crx ) ), ]
-X <- crx[,1:15]
-y <- crx[,16]
-trainX <- X[1:600,]
-trainy <- y[1:600]
-testX <- X[601:690,]
-testy <- y[601:690]
-library(C50)
-model <- C50::C5.0( trainX, trainy )
-summary( model )
-\end{lstlisting}
+\begin{frame}[fragile,fragile,fragile]
+\frametitle{C5.0: Example in R\footnote{Ejemplo obtenido de:
+    http://connor-johnson.com/2014/08/29/decision-trees-in-r-using-the-c50-package/}}
+\begin{tikzpicture}
+\tikzpicdimlarge
+\only<1->{\node[] (def) at (0.5,9) {
+\begin{minipage}{0.8\textwidth}
+crx$<$-read.table(file="./crx.data",header=FALSE,sep=",") \\
+head( crx, 6 ) \\
+\end{minipage}
 };}
+\only<2->{\node[] (def) at (0.5,7.8) {
+\begin{minipage}{0.8\textwidth}
+crx $<$- crx[ sample( nrow( crx ) ), ] \\
+X $<$- crx[,1:15] \\
+y $<$- crx[,16] \\
+\end{minipage}
+};}
+\only<3->{\node[] (def) at (0.5,6) {
+\begin{minipage}{0.8\textwidth}
+trainX $<$- X[1:600,] \\
+trainy $<$- y[1:600] \\
+testX $<$- X[601:690,] \\
+testy $<$- y[601:690] \\
+\end{minipage}
+};}
+\only<4->{\node[] (def) at (0.5,4.5) {
+\begin{minipage}{0.8\textwidth}
+\textbf{library(C50) \\
+model $<$- C50::C5.0( trainX, trainy ) \\
+summary( model )}
+\end{minipage}
+};}
+
 \end{tikzpicture}
 \end{frame}
 
