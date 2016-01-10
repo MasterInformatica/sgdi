@@ -2,49 +2,96 @@
 \sectionDark{Random Forest}
 %=================================================
 \begin{frame}
-  \frametitle{Introducción}
-  
+  \frametitle{Introducción -- I}
+  \only<1>{\alert{Hasta ahora:}\\ \qquad Un conjunto de entrenamiento $\rightarrow$ Un árbol
+  de clasificación\\}
+
+  \only<2>{\alert{Random forest:}\\ \qquad Un conjunto de entrenamiento $\rightarrow$ Varios árboles
+    de clasificación\\}
+
+  \vspace{0.3cm}
+
   \begin{columns}
     \begin{column}{0.5\textwidth}
-      \begin{tabular}{ccccc} 
-        $attr_1$ & $attr_2$ & $\cdots$ & $attr_m$ & $clase$ \\ \hline 
-        $a_{11}$ & $a_{12}$ & $\cdots$ & $a_{1m}$ & Rojo \\
-        $a_{21}$ & $a_{22}$ & $\cdots$ & $a_{2m}$ & Verde \\ 
-        $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ \\ 
-        $a_{n1}$ & $a_{n2}$ & $\cdots$ & $a_{nm}$ & Rojo \\ \hline
+      \begin{tabular}{ccccc}
+        Sexo & Altura & Peso & Exp. & Act. \\ \hline
+        H & 1,55 & 45 & A+ & Fútbol \\
+        H & 1,67 & 58 & C & Fútbol \\
+        M & 1,45 & 45 & B & Fútbol \\
+        M & 1,58 & 50 & A+ & Pádel \\
+        H & 1,20 & 40 & B & Fútbol \\
+        M & 1,80 & 60 & A & Pádel \\
+        $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ \\ \hline
       \end{tabular}
     \end{column}
     \begin{column}{0.5\textwidth}
+      \vspace{0.3cm}
       \includegraphics<1>[width=\textwidth]{images/randomForest/1arbol.png}
       \includegraphics<2->[width=\textwidth]{images/randomForest/bosque.png}
     \end{column}
   \end{columns}
 
-
-  \begin{columns}
-    \begin{column}{0.95\paperwidth}
-      \begin{block}<3->{Ideas (\textcolor{red}{No me gusta este título})}
-        \begin{itemize}
-        \item ¿Cómo se clasifica una instancia?
-        \item ¿Cómo se generan varios árboles con el mismo conjunto de
-          entrenamiento?
-        \item ¿Cómo se genera un árbol en concreto?
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
 \end{frame}
 
+
 \begin{frame}
+  \frametitle{Introducción -- II}
+
+  \begin{block}{Random forest\footnote{Técnica propuesta por primera vez en \cite{randomForest}.} (\textcolor{red}{No me gusta este título})}
+    \begin{itemize}
+    \item ¿Cómo se clasifica una instancia?
+    \item ¿Cómo se generan varios árboles con el mismo conjunto de
+      entrenamiento?
+    \item ¿Cómo se genera un árbol en concreto?
+    \end{itemize}
+  \end{block}
+
+   
+\end{frame}
+
+
+\begin{frame}[fragile,fragile]
   \frametitle{Clasificación de instancias}
+  
+  Al existir varios árboles, pueden existir varias clases posibles para una
+  instancia.\\
+  \quad La clase final será aquella que más veces aparece elegida (\alert{moda}).
+\begin{lstlisting}[frame=single, numbers=left]
+clasifica(x):
+  for_each a in arboles:
+     cjto += clasifica(x, a)
+
+  return moda(cjto)
+\end{lstlisting}
+
+\begin{columns}
+  \begin{column}{0.6\textwidth}
+    \flushright
+    \includegraphics<1>[scale=0.2]{images/randomForest/arbol_class1.png}
+    \includegraphics<2->[scale=0.2]{images/randomForest/arbol_class2.png}
+  \end{column}
+  \begin{column}{0.4\textwidth}
+    \includegraphics[scale=0.2]{images/randomForest/nodo.png}
+  \end{column}
+\end{columns}
+
 \end{frame}
 
 
 \begin{frame}
-  \frametitle{Generación de árboles -- Selección de instancias}
+  \frametitle{Generación de árboles --- Selección de instancias}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Generación de árboles -- Selección de atributos}
+  \frametitle{Generación de árboles --- Selección de atributos}
 \end{frame}
 
+
+
+%
+%
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "PRESENTACION.tex"
+%%% End:
