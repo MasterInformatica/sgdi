@@ -71,7 +71,8 @@ clasifica(x):
     \includegraphics<2->[scale=0.2]{images/randomForest/arbol_class2.png}
   \end{column}
   \begin{column}{0.4\textwidth}
-    \includegraphics[scale=0.2]{images/randomForest/nodo.png}
+    \includegraphics<-2>[scale=0.2]{images/randomForest/nodo.png}
+    \includegraphics<3->[scale=0.2]{images/randomForest/nodo_naranja.png}
   \end{column}
 \end{columns}
 
@@ -94,17 +95,32 @@ clasifica(x):
   \end{itemize}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[shrink]
   \frametitle{Generación de árboles --- Selección de instancias}
   \alert{Problema:} A partir de un mismo conjunto de entrenamiento se
   desean obtener distintos árboles de clasificación.\\
-
-
+  \vspace{\baselineskip} % hack chapuza para meter una linea entre párrafos
   \alert{Solución:}
+  Técnica conocida como \textbf{Bagging} o \emph{Bootstrap aggregating}:
   \begin{itemize}
-  \item Técnica conocida como \emph{Bagging} o \emph{Bootstrap aggregating}.
+  \item Dado un conjunto de entrenamiento con $N$ instancias, obtener $B$
+    conjuntos de entrenamiento de tamaño $n'$ ($n' < N$).
+  \item Utilizar \textit{muestreo aleatorio con reemplazamiento}.
   \end{itemize}
 
+  \includegraphics[width=\textwidth]{images/randomForest/bagging.png}
+
+
+  % \begin{tabular}{ccccc}
+  %   Sexo & Altura & Peso & Exp. & Act. \\ \hline
+  %   \rowcolor[gray]{.9} H & 1,55 & 45 & A+ & Fútbol \\
+  %   \rowcolor[gray]{.9}H & 1,67 & 58 & C & Fútbol \\
+  %   M & 1,45 & 45 & B & Fútbol \\
+  %   \rowcolor[gray]{.9}M & 1,58 & 50 & A+ & Pádel \\
+  %   H & 1,20 & 40 & B & Fútbol \\
+  %   $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ & $\cdots$ \\ \hline
+  % \end{tabular}
+  
 \end{frame}
 
 
