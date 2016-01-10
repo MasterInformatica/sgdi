@@ -3,12 +3,12 @@
 %=================================================
 \begin{frame}
   \frametitle{TDIDT\footnote{Diapositiva sacada del temario de SGDI}}
-\includegraphics[width=\textwidth]{./images/esquemaTDIDT.png}
+\includegraphics[width=\textwidth]{./images/c45/esquemaTDIDT.png}
 \end{frame}
 
 \begin{frame}
   \frametitle{ID3\footnote{Diapositiva sacada del temario de SGDI}}
-\includegraphics[width=\textwidth]{./images/esquemaID3.png}
+\includegraphics[width=\textwidth]{./images/c45/esquemaID3.png}
 \end{frame}
 
 %=================================================
@@ -34,10 +34,11 @@
     \tikzpicdimlarge
     \only<1->{\node[] (def) at (0.5,6) {
         \begin{minipage}{0.9\textwidth}
-          \textcolor{purple}{\textbf{Funciones Test:}}
-          Para calcular los subconjuntos de instancias al clasificar
-          por un atributo se utilizan funciones test de tipo $x >
-          40$ ó $x < 4$ ó $ x = soleado$.
+          \textcolor{purple}{\textbf{Split y Funciones Test:}}
+          Para divir en subconjuntos las instancias test se divide el
+          dominio donde haya mayor ganancia de información. Esta
+          división se traduce en funciones test de tipo $x > 40$ ó $x
+          < 4$, y para atributos discretos $ x = soleado$. 
         \end{minipage}
       };}
 
@@ -50,10 +51,9 @@
 
           Para ello, se tiene en cuenta la proporción de instancias
           que queda en cada rama para el atributo candidato y el peso
-          de importancia dado a dicho atributo.\\
-          
-          La fórmula queda para el atributo $i$, siendo D el
-          conjunto de instancias
+          de importancia dado a dicho atributo.
+          Siendo $D$ el conjunto de instancias, la fórmula para el
+          atributo $i$ queda:
           $$ Ganancia_i = Peso_i * \sum_j \frac{|D_j|}{|D|} * Info_j $$
         \end{minipage}
       };}
@@ -66,16 +66,45 @@
 \begin{tikzpicture}
 \tikzpicdimlarge
 \only<1->{\node[] () at (0,9)
-  {\includegraphics[width=0.65\textwidth]{images/ID3iris.png}};}
+  {\includegraphics[width=0.65\textwidth]{./images/c45/ID3iris.png}};}
 \only<2->{\node[] () at (0,5)
-  {\includegraphics[width=0.65\textwidth]{images/C45tree.png}};}
+  {\includegraphics[width=0.65\textwidth]{./images/c45/C45tree.png}};}
 
 \end{tikzpicture}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Mejoras a C4.5}
+  \frametitle{C4.8 (J48)\footnote{Algoritmo utilizado en weka}: Mejoras a C4.5}
+  \begin{tikzpicture}
+    \tikzpicdimlarge
+    \only<1->{\node[] (def) at (0.5,6) {
+        \begin{minipage}{0.9\textwidth}
+          \textcolor{purple}{\textbf{Problemas:}}\\
+        ``The accuracy of T2's trees rivalled or surpassed C4.5's on 8
+        of the 15 datasets, including all but one of the datasets
+        having only continuous attributes.''\cite{auer1995theory}\\
 
+        ``C4.5's performance was significantly improved on two data
+        sets ... using the entropy discretization method and did no
+        significantly degrade on any datasets [...] We conjeture that
+        the C4.5 induction algorithm is not taking full advantage of
+        possible local discretization.''\cite{dougherty1995supervised}
+        \end{minipage}
+      };}
+    \only<2->{\node[] (def) at (0.5,2) {
+        \begin{minipage}{0.9\textwidth}
+          \textcolor{purple}{\textbf{Solución \cite{quinlan1996improved}:}}
+          \begin{itemize}
+            \item Aumentar el coste de usar atributos continuos
+              disminuyendo el peso de importancia del atributo.
+            \item Simplificar la división de un atributo continuo, en
+              lugar de maximizar la ganacia, basta con superar un
+              límite.
+            \item Se añade el generador de reglas.
+          \end{itemize}
+        \end{minipage}
+      };}
+\end{tikzpicture}
 \end{frame}
 
 %=================================================
@@ -85,16 +114,60 @@
 \begin{frame}
   \frametitle{C5.0}
 % Mejoras
+  C5.0 tiene licencia comercial y licencia GPL para un solo proceso.\\
+   \textcolor{purple}{\textbf{Mejoras \footnote{Basado en
+         \cite{pandya2015c5} y la página oficial del autor
+         \cite{quinlanURL}}:}}
+\begin{itemize}
+\item Aumenta el rendimiento del algoritmo.
+\item Reduce el consumo de memoria local y total.
+\item Devuelve árboles de clasificación reducidos.
+\item Poda atributos irrelevantes para la clasificación.
+\item Hace la ponderación de atributos más precisa.
+\item Agrupa valores de atributos discretos en una misma rama.
+\item Genera reglas con más acierto que las de C4.8.
+\item Facilita la aplicación de técnicas como bagging y boosting,
+  mejorando sus resultados.\footnote{\cite{freund1999alternating}}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile,fragile,fragile]
+\frametitle{C5.0: Example in R\footnote{Ejemplo obtenido de:
+    http://connor-johnson.com/2014/08/29/decision-trees-in-r-using-the-c50-package/}}
+\begin{tikzpicture}
+\tikzpicdimlarge
+\only<1->{\node[] (def) at (0.5,9) {
+\begin{minipage}{0.8\textwidth}
+crx$<$-read.table(file="./crx.data",header=FALSE,sep=",") \\
+head( crx, 6 ) \\
+\end{minipage}
+};}
+\only<2->{\node[] (def) at (0.5,7.8) {
+\begin{minipage}{0.8\textwidth}
+crx $<$- crx[ sample( nrow( crx ) ), ] \\
+X $<$- crx[,1:15] \\
+y $<$- crx[,16] \\
+\end{minipage}
+};}
+\only<3->{\node[] (def) at (0.5,6) {
+\begin{minipage}{0.8\textwidth}
+trainX $<$- X[1:600,] \\
+trainy $<$- y[1:600] \\
+testX $<$- X[601:690,] \\
+testy $<$- y[601:690] \\
+\end{minipage}
+};}
+\only<4->{\node[] (def) at (0.5,4.5) {
+\begin{minipage}{0.8\textwidth}
+\textbf{library(C50) \\
+model $<$- C50::C5.0( trainX, trainy ) \\
+summary( model )}
+\end{minipage}
+};}
+
+\end{tikzpicture}
 \end{frame}
 
 
-%\begin{frame}
-%  \frametitle{Ejemplo}
-%\end{frame}
-
-%===== EJEMPLO =====
-%\begin{frame}[fragile] % Frame ejemplo 2
-%  \frametitle{Ejemplo}
-%\end{frame}
 
 

@@ -73,7 +73,6 @@ de atributos continuos.
 El algoritmo sigue el mismo esquema TDIDT los cambios son:
 *** Uso de funciones test para hacer las particiones del conjunto original
 *** Calculo de la ganancia de información basado en una normalización (ponderación)
-
 * C5.0
 Pero todo no es de color de rosa en C4.5, existen diversos articulos y
 comentarios acerca de la precisión de C4.5 cuando hay muchos atributos
@@ -89,7 +88,20 @@ Licencia Comercial. Existe una para un solo proceso con licencia GPL.
 *** Tamaño del árbol
 *** Poda de atributos irrelevantes
 *** Ponderación de atributos más precisa
-
+** Ejemplo
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data"
+crx <- read.table( file=url, header=FALSE, sep="," )
+head( crx, 6 )
+crx <- crx[ sample( nrow( crx ) ), ]
+X <- crx[,1:15]
+y <- crx[,16]
+trainX <- X[1:600,]
+trainy <- y[1:600]
+testX <- X[601:690,]
+testy <- y[601:690]
+library(C50)
+model <- C50::C5.0( trainX, trainy )
+summary( model )
 
 * Random Forest
 ** Main idea
