@@ -1,0 +1,93 @@
+\documentclass[10pt, xcolor=table]{beamer}
+
+\usetheme{m}
+
+\usepackage{times}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{fancyvrb}
+\usepackage{xspace}
+
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+
+%\usepackage{pgfplots}
+%\usepgfplotslibrary{dateplot}
+
+\usepackage{listings}
+
+\usepackage[latin1]{inputenc}
+\usepackage[spanish]{babel}
+
+
+\title{Árboles de clasificación}
+\subtitle{C4.5, C5.0 y Random Forest}
+\date{}
+\author{Luis María Costero Valero\\Jesús Javier Doménech Arellano}
+\institute{Enero 2016}
+
+\titlegraphic{\hfill\includegraphics[scale=0.25]{images/portada.png}}
+
+
+\definecolor{bgg}{HTML}{FBFBFB}
+\def\gcolor{bgg}    % while presenting
+%\def\gcolor{black} % while developing
+
+\def\tikzpicdim{
+  \draw[step=0.1cm, color=\gcolor] (0,-1) grid (12,7);
+  \draw[step=1cm, color=\gcolor] (0,-1) grid (12,7);
+}
+
+\let\tikzpicdimlarge\tikzpicdim
+
+
+
+\metroset{titleformat=regular}
+\metroset{inner/sectiontitleformat=regular}
+\metroset{outer/frametitleformat=regular}
+\metroset{block=fill}
+
+\newcommand\sectionDark[1]{{\metroset{background=dark} \section{#1} }}
+\begin{document}
+
+\maketitle
+
+
+%%======= INDICE ========================================
+\begin{frame}
+  \frametitle{Índice}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents
+\end{frame}
+
+
+%%======= C4.5 y C5.0 ========================================
+\input{c45.tex}
+
+
+%%======= Random Forest ========================================
+\input{randomForest.tex}
+
+
+
+%======= BIBLIOGRAFÍA =======
+\sectionDark{Bibliografía}
+%% TODO: No se si esto está bien así o no. A lo mejor es interesnate
+%% quitarlo
+
+
+\begin{frame}[allowframebreaks]{Bibliografía}
+
+  \bibliographystyle{apalike}
+  \bibliography{doing/references}
+
+\end{frame}
+
+
+%%======= DUDAS ========================================
+{
+  \metroset{background=dark}
+  \section*{¿  ?}
+}
+
+\end{document}
