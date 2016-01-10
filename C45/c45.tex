@@ -2,12 +2,12 @@
 \sectionDark{ID3}
 %=================================================
 \begin{frame}
-  \frametitle{TDIDT}
+  \frametitle{TDIDT\footnote{Diapositiva sacada del temario de SGDI}}
 \includegraphics[width=\textwidth]{./images/esquemaTDIDT.png}
 \end{frame}
 
 \begin{frame}
-  \frametitle{ID3}
+  \frametitle{ID3\footnote{Diapositiva sacada del temario de SGDI}}
 \includegraphics[width=\textwidth]{./images/esquemaID3.png}
 \end{frame}
 
@@ -17,7 +17,7 @@
 \begin{frame}
   \frametitle{C4.5}
   El algoritmo ID3 es mejorado por el C4.5. Esta mejora, aparte de la
-  optimización de partes de código, incluye:
+  optimización de partes de código, incluye\footnote{Artículo con las bases del algoritmo \cite{quinlan1986induction}}:
   \begin{itemize}
   \item Permite atributos continuos.
   \item Permite dar un peso diferente a cada atributo.
@@ -29,7 +29,7 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Algoritmo C4.5}
+  \frametitle{Algoritmo C4.5\footnote{Obtenido del libro \cite{quilan2014c4} y su review \cite{salzberg1994c4}}}
   \begin{tikzpicture}
     \tikzpicdimlarge
     \only<1->{\node[] (def) at (0.5,6) {
@@ -42,7 +42,6 @@
       };}
 
     \only<2->{\node[] (def) at (0.5,2) {
-
         \begin{minipage}{0.9\textwidth}
           \textcolor{purple}{\textbf{Selección del atributo:}}
           La selección del atributo por el que dividir consiste en
@@ -58,18 +57,18 @@
           $$ Ganancia_i = Peso_i * \sum_j \frac{|D_j|}{|D|} * Info_j $$
         \end{minipage}
       };}
-  \end{tikzpicture}
 
+  \end{tikzpicture}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Ejemplo --  Árbol y Construcción de Reglas}
+  \frametitle{Ejemplo --  ID3 vs C4.5 (atributos continuos)}
 \begin{tikzpicture}
 \tikzpicdimlarge
 \only<1->{\node[] () at (0,9)
-  {\includegraphics[width=0.65\textwidth]{images/C45tree.png}};}
+  {\includegraphics[width=0.65\textwidth]{images/ID3iris.png}};}
 \only<2->{\node[] () at (0,5)
-  {\includegraphics[width=0.65\textwidth]{images/C45rule.png}};}
+  {\includegraphics[width=0.65\textwidth]{images/C45tree.png}};}
 
 \end{tikzpicture}
 \end{frame}
