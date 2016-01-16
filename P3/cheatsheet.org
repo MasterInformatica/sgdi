@@ -1,0 +1,100 @@
+Chuleta rápida para aprender mongoDB en 1 minuto
+
+* Elegir la base de datos con la que trabajar:
+  use miBd
+
+* Mostrar todas las db que hay en el sistema
+  show dbs
+
+* mostrar todas las colecciones cradas de una bd:
+  show collections
+
+* Insertar en la base de datos
+  db.usuarios.insert({"name:"Pepe", nhijos:3})
+  db.usuarios.insert({"name:"Pepe", web:"https://mi.web.com"})
+
+* Modificar una fila
+** COMPLETAMENTE
+  db.usuarios.update({name:"Ana"}, {name:"Oculto"}}
+
+** Añadir/modificar parcialmente
+  db.usuarios.update({name:"Ana"}, {"$set": {sexo:"varon"}} )
+
+** Eliminar un campo
+  db.usuarios.update({name:"Ana"}, {"$unset":{sexo:1}} )
+
+* Búsqueda
+** Todos los documentos
+   db.usuarios.find()
+
+** Por un campo
+   db.usuarios.find({name:"Ana"})
+
+** Cndicion or
+   db.usuarios.find({"or": [{name:"Ana"}, {sexo:"varon"}]})
+   
+   (Como javascript es tan divertido, es un objeto que tiene en uno de sus
+   atributos un array de objetos con los atributos a buscar)
+
+** Condición > gt
+   db.usuarios.find({nhijos: {$gt:2}})
+   
+   (Como está tabn bien diseñado, se genera una clase javascript que tiene
+   como valor otra clase javascript que internatmente generará una funcion
+   de comparación (me imagino)).
+   Para que algo tenga sentido debería ser algo así
+   {$gt:2} = function(var a) { return a>2; }
+
+** Condición IN
+   db.usuarios.find({name: $in{["Ana", "Pepe"]}})
+
+** Solo obtener UNO
+   db.usuarios.findOne(...)
+   
+** Buscar en un array algun dato
+   db.usuarios.find({gustos: "animales"})
+
+   Busca los documentos que tengan animales dentro del array de gustos
+
+** Busca en un array todos los datos
+   db.usuarios.find({gustos: {$all: ["aventrua", "anumales"]}})
+
+** Acceso a anidaciones
+   db.usuarios.find({direccion.calle : "Baker Street"})
+
+** Acceso a los elementos de un array (número)
+   db.usuarios.find({ejemplares.2: 5}) 
+
+** Filtrar los campos (proyecciones del algebra)
+   db.usuarios.find({name: "ana"}, {name:1, _id:0})
+   
+   Esto muestra name y oculta _id
+* Búsquedas complejas 
+  Como el diseño es taaaaan bueno, resulta que las consultas con find no
+  permiten relacionar dos campos entre ellos, por lo que hay que usar otra
+  estructura:
+
+** where
+   db.usuarios.find( {$where:
+      function(){
+        if('nhijos' in this && 'num_compras' in this)
+	    return this['nhijos'] == this['num_compras'];
+	else
+	    return false;
+      }
+  })
+
+** Limitar el numero de respuestas
+   db.usuarios.find(...).limit(2)
+
+** Omitir resultados
+   db.usuarios.find(...).skip(2)
+* Ordenación
+  OJO, que esto es bestial: 
+  -1 : descendente
+  1  : ascendente
+
+** sort 
+   db.usuarios.find().sort({name: -1, nhijos:1})
+
+* Indices, que no vienen al cuento ahora

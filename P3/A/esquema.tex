@@ -1,0 +1,99 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[spanish]{babel}
+\decimalpoint
+\setlength{\parskip}{0.5\baselineskip} 
+\usepackage{fullpage}
+\usepackage[procnames]{listings}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption}
+n\usepackage[fleqn]{amsmath}
+\parindent 0in 
+\setlength{\mathindent}{0pt}
+
+
+%% DEFINICIONES
+\newcommand{\TODO}[1]{{\huge \color{red} \textbf{TODO: }#1 }}
+\newcommand{\todo}[1]{{\large \color{red} \textbf{TODO: }#1 }}
+
+
+
+\begin{document} 
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{P3: MongoDB}
+\rhead{Luis Mª Costero Valero, Jesús J. Doménech Arellano}
+\rfoot{\thepage\ / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\section*{}
+
+\textbf{Descripción del esquema implícito escogido:}\\
+
+Para el diseño de la base de datos del sitio de preguntas propuesto en la
+práctica, se ha considerado la creación de 4 colecciones para almacenar los
+usuarios, las preguntas, las contestaciones y comentarios, y las
+puntuaciones respectivamente.
+
+\todo{Esto es un draft, cuando esté la bd, pues acabr de escribirlo
+  mejor:}\\
+
+
+Las consideraciones que se han tomado para realizar este esquema han sido:\\
+
+-- Separar preguntas de comentarios y respuestas ya que los comentarios no
+tienen un numero acotado, y ademas al contener multimedia van a ser
+grandes. (más cosas??)\\
+-- La pregunta referencia a las contestaciones para que así se pueda saber
+el número de contestaciones sin necesidad de consulatar la coleccion.\\
+-- Se ha decidido separar la información de puntuaciones a otra tabla
+porque se prevee que va a haber muchas escrituras y lecturas de
+estas. Además, esto permite obtener todas las puntutaciones de un usuario
+de manera sencilla.\\
+-- Aunque las valoraciones están en una coleccion independiente, los
+documentos de respuestas lelvan un contador de votos positivos y negativos
+para mostrar esa información al consultar una respuesta.\\
+-- Los comentarios se encuentran anidados a las respuestas para no tener
+que añadir un campo más referenciando a la contestación que comentan, y
+además conseguir que la coleccion almacene un único tipo de documento.\\
+-- Mas cosas que he pensado (y mucho) pero ahora no me vienen a la cabeza\\
+
+
+
+
+\textbf{USUARIOS:} Contiene:
+
+\todo{Aunque este ejemplo está puesto aquí a pelo, es mejor extraerlo de la
+  base de datos}
+\begin{lstlisting}
+{ "alias": "ShW",
+  "Nombre": "Sherlock",
+  "Apellidos": "Holmes",
+  "experiencia": ["SQL", "PayPal", "Tor"],
+  "fecha_creacion": 20150122212536,
+  "direccion" : { "calle": "Baker Street",
+                  "numero": "221",
+                  "letra": "B",
+                  "pais": "Inglaterra",
+                  "ciudad": "Londres"
+                }
+}
+\end{lstlisting}
+
+\textbf{Preguntas:}
+\end{document}
+
+
+
+%
+%
+%%%
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "./esquema.tex"
+%%% End:
