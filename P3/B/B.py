@@ -9,19 +9,42 @@ con otros ni haberlo obtenido de una fuente externa.
 """
 
 from pymongo import MongoClient
+from datetime import datetime
+from bson import json_util
+from bson import ObjectId
+import json
 
 #################################################################
 ## Es necesario añadir los parámetros adecuados a cada función ##
 #################################################################
 
+
+#TODO: Pasar todo a txt. Hay que deolver json
+
 # 1. Añadir un usuario
-def insert_user():
-    pass
+def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
+                experiencia ):
+
+
+    user = createUser(alias, nombre, apellidos, calle, numero, ciudad, pais, experiencia) 
+    db.usuarios.insert_one(user)
+
 
 
 # 2. Actualizar un usuario
-def update_user():
-    pass
+def update_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
+                experiencia, fecha=None):
+
+    """ La versión de pymongo que estamos utilizando no permite actualizar por defecto
+    todos los campos de manera directa, sino que obliga a utilizar al menos algún operador
+    de actualización ($set en este caso):
+        raise ValueError('update only works with $ operators')
+    """
+    user = createUser(alias, nombre, apellidos, calle, numero, ciudad,
+                      pais, experiencia, fecha)
+
+    db.usuarios.update_one({"alias": alias}, {"$set":user})
+
 
 
 # 3. Añadir una pregunta
@@ -81,13 +104,23 @@ def get_scores():
 
 
 # 13. Ver todos los datos de un usuario.
-def get_user():
-    pass
+def get_user(alias):
+    #TODO: cambiar de acuerdo al diseño final de la bd
+    filtro = {"_id": 0,
+              "preguntas": 0,
+              "respuestas": 0
+          }
+    user = db.usuarios.find_one({"alias":alias}, filtro)
+    
+    return json_util.dumps(user)
+
 
 
 # 14. Obtener los alias de los usuarios expertos en un determinado tema.
-def get_uses_by_expertise():
-    pass
+def get_uses_by_expertise(topic):
+    
+    alias = db.usuarios.find({"experiencia":topic},  {"alias": 1, "_id": 0})
+    return json_util.dumps(alias)
 
 
 # 15. Visualizar las n preguntas mas actuales ordenadas por fecha, incluyendo
@@ -102,15 +135,40 @@ def get_questions_by_tag():
     pass
     
     
+
+
+
 ################################################################################
 ############################  FUNCIONES AUXILIARES  ############################
 ################################################################################
 
-# Incluir aqui el resto de funciones necesarias
 
+#Dados los campos de una direccion, devuelve el objeto para insertar
+def createDirection(calle, numero, ciudad, pais):
+    return {"calle": calle,
+            "numero": numero,
+            "ciudad": ciudad,
+            "pais": pais}
 
-def inserta_usuarios(collection):
-    pass
+#Crea un usuario para insertar en la bd. si la fecha en nula, pone la actual
+
+def createUser(alias, nombre, apellidos, calle, numero, ciudad, pais,
+               experiencia, fecha=None):
+    dir = createDirection(calle, numero, ciudad, pais)
+
+    if not isinstance(experiencia, list):
+        experiencia = [experiencia]
+
+    if fecha is None:
+        fecha = datetime.utcnow()
+
+    return {"alias": alias,
+            "nombre": nombre,
+            "apellidos": apellidos,
+            "direccion": dir,
+            "experiencia": experiencia,
+            "fecha_creacion": fecha
+    }
 
 
 
@@ -120,12 +178,11 @@ if __name__ == '__main__' :
     client = MongoClient('localhost',27017)
     db = client['sgdi_grupo04']
 
-    #insertar los datos
-    # usuarios
-    usuarios = db['usuarios']
-    inserta_usuarios(usuarios)
-    
-    
-    
+    #insert_user("alias", "n", "a", "v", "n", "c", "p", ["asd", "bl"])
+    #update_user("alias", "a", "a", "a", "a", "a", "a", [])
 
+
+    print get_user("ShW")
+    print "----------------------------------------------------------------------"
+    print get_uses_by_expertise("SQL")
 
