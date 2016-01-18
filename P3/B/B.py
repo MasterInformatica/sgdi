@@ -220,8 +220,31 @@ def get_newest_questions(n):
 
 # 16. Ver n preguntas sobre un determinado tema, ordenadas de mayor a menor por
 # numero de contestaciones recibidas.
-def get_questions_by_tag():
-    pass
+def get_questions_by_tag(n, topic):
+    #utilizando un aggregation pipeline para realizar el proceso.
+    if not isinstance(topic, list):
+        topic = [topic]
+    
+    pipeline = [
+        {"$match": { "tags" : {"$all" : topic}}},
+        {"$project" : {
+            "_id": 1,
+            "tags" : 1,
+            "fecha_creacion":1,
+            "alias": 1,
+            "titulo": 1,
+            "texto": 1,
+            "num_contestaciones":{"$size": "$respuestas"} }},
+        {"$sort": {"num_contestaciones": -1}},
+        {"$limit": n}
+    ]
+
+    questions = db.preguntas.aggregate(pipeline)
+
+    return json_util.dumps(questions)
+        
+            
+
     
     
 
@@ -330,4 +353,6 @@ if __name__ == '__main__' :
     #print add_comment(ObjectId("569cd3ceb2c6de0ac2895e91"), "Perico", "esto es un comentario")
 
     #print get_entries_by_user("ShW")
-    print get_newest_questions(2)
+    #print get_newest_questions(2)
+
+    print get_questions_by_tag(5, ["poison", "sql"])
