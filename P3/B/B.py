@@ -84,8 +84,13 @@ def add_answer(pregunta_id, alias, texto, fecha=None):
 
 
 # 5. Comentar una respuesta.
-def add_comment():
-    pass
+def add_comment(respuesta_id, alias, texto, fecha=None):
+    comment = createComment(alias, texto, fecha=None)
+
+    id = db.respuestas.update_one({"_id":respuesta_id},
+                                  {"$push": { "comentarios" : comment}})
+
+    return json_util.dumps({"modified_count": id.modified_count})
 
 
 # 6. Puntuar una respuesta.
@@ -256,7 +261,17 @@ def createAnswer(pregunta_id, alias, texto, votos_pos=0, votos_neg=0, fecha=None
             "fecha_creacion" : fecha,
             "comentarios" : []
         }
-            
+
+
+#Dados los datos de un comentario, crea el objeto para insertar en la bd
+def createComment(alias, texto, fecha=None) :
+    if fecha is None:
+        fecha = datetime.utcnow()
+
+    return {"alias": alias,
+            "texto": texto,
+            "fecha_creacion": fecha
+            }
     
 
 if __name__ == '__main__' : 
@@ -283,3 +298,4 @@ if __name__ == '__main__' :
     #print add_answer(ObjectId("569ccdfcb2c6de091937d0ba"), "ShW", "reskj puesta")
 
     print get_question(ObjectId("569ccdfcb2c6de091937d0ba"))
+    #print add_comment(ObjectId("569cd3ceb2c6de0ac2895e91"), "Perico", "esto es un comentario")
