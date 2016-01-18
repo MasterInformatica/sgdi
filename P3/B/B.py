@@ -68,8 +68,19 @@ def add_question(titulo, alias, texto, tags, fecha=None):
 
 
 # 4. Añadir una respuesta a una pregunta.
-def add_answer():
-    pass
+def add_answer(pregunta_id, alias, texto, fecha=None):
+    #1.- Insertamos la respuesta y guardamos su id
+    answer = createAnswer(pregunta_id, alias, texto, fecha)
+    id = db.respuestas.insert_one(answer).inserted_id
+    
+    #2.- Guardamos la referencia tanto en las preguntas como en el usuario
+    db.usuarios.update_one({"alias": alias},
+                           {"$push": {"respuestas": id} })
+    db.preguntas.update_one({"_id": pregunta_id},
+                            {"$push" : {"respuestas": id} })
+
+    return json_util.dumps({"inserted_id": id})
+    
 
 
 # 5. Comentar una respuesta.
@@ -96,8 +107,16 @@ def delete_question():
 # 9. Visualizar una determinada pregunta junto con todas sus contestaciones
 # y comentarios. A su vez las contestaciones vendran acompañadas de su
 # numero de puntuaciones buenas y malas.
-def get_question():
-    pass
+def get_question(pregunta_id):
+    #1.- Conseguir la pregunta
+    question = db.preguntas.find_one({"_id": pregunta_id})
+
+    #2.- Conseguir todos las contestaciones y comentarios
+    answers = db.respuestas.find({"_id": { "$in": question["respuestas"]}},
+                                 {"pregunta_id": 0 })
+    
+    return json_util.dumps({"question" : question,
+                            "answers" : answers})
 
 
 # 10. Buscar preguntas con unos determinados tags y mostrar su titulo, su autor
@@ -202,7 +221,9 @@ def createUser(alias, nombre, apellidos, calle, numero, ciudad, pais,
             "apellidos": apellidos,
             "direccion": dir,
             "experiencia": experiencia,
-            "fecha_creacion": fecha
+            "fecha_creacion": fecha,
+            "preguntas": [],
+            "respuestas": []
     }
 
 
@@ -222,6 +243,22 @@ def createQuestion( titulo, alias, texto, tags, fecha=None):
         }
 
 
+#Dados los datos de una respuesta, crea el objeto a insertar en la bd
+def createAnswer(pregunta_id, alias, texto, votos_pos=0, votos_neg=0, fecha=None):
+    if fecha is None:
+        fecha = datetime.utcnow()
+
+    return {"pregunta_id" : pregunta_id,
+            "alias" : alias,
+            "texto" : texto,
+            "votos_pos" : votos_pos,
+            "votos_neg" : votos_neg,
+            "fecha_creacion" : fecha,
+            "comentarios" : []
+        }
+            
+    
+
 if __name__ == '__main__' : 
 
     # Conexión con la base de datos
@@ -240,5 +277,9 @@ if __name__ == '__main__' :
     #preguntas
     #print add_question("Mejor manera de envenenar?", "Poison", "Me han encargado un trabajo, y necesito saber los dístintos métodos que existen para envenenar a una persona actualmente.", ["poison", "crimen"])
     #print add_question("tit", "ShW", "asd", ["poison", "sql"])
+    #print get_question_by_tag(["poison", "sql"])
 
-    print get_question_by_tag(["poison"])
+    #respuestas
+    #print add_answer(ObjectId("569ccdfcb2c6de091937d0ba"), "ShW", "reskj puesta")
+
+    print get_question(ObjectId("569ccdfcb2c6de091937d0ba"))
