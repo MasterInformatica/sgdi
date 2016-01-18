@@ -35,7 +35,7 @@ Chuleta rápida para aprender mongoDB en 1 minuto
    
    (Como javascript es tan divertido, es un objeto que tiene en uno de sus
    atributos un array de objetos con los atributos a buscar)
-
+   
 ** Condición > gt
    db.usuarios.find({nhijos: {$gt:2}})
    

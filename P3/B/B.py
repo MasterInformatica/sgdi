@@ -25,10 +25,10 @@ import json
 def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
                 experiencia ):
 
-
     user = createUser(alias, nombre, apellidos, calle, numero, ciudad, pais, experiencia) 
-    db.usuarios.insert_one(user)
+    ret = db.usuarios.insert_one(user)
 
+    return json_util.dumps({"inserted_id":ret.inserted_id})
 
 
 # 2. Actualizar un usuario
@@ -43,13 +43,28 @@ def update_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
     user = createUser(alias, nombre, apellidos, calle, numero, ciudad,
                       pais, experiencia, fecha)
 
-    db.usuarios.update_one({"alias": alias}, {"$set":user})
+    ret = db.usuarios.update_one({"alias": alias}, {"$set":user})
+
+    return json_util.dumps({"modified_count": ret.modified_count})
 
 
 
 # 3. Añadir una pregunta
-def add_question():
-    pass
+def add_question(titulo, alias, texto, tags, fecha=None):
+    """ Suponemos que la API ha realizado las comprobaciones de seguridad pertinentes,
+    y el alias del usuario existe """
+
+    # 1.- Insertamos la pregunta y guardamos su id
+    question = createQuestion(titulo, alias, texto, tags, fecha)
+    id = db.preguntas.insert_one(question).inserted_id
+
+    # 2.- Guaramos en la tabla de usuarios la referencia
+    db.usuarios.update_one({"alias":alias},
+                           {"$push": { "preguntas": id } })
+
+    
+    return json_util.dumps({"inserted_id": id})
+
 
 
 # 4. Añadir una respuesta a una pregunta.
@@ -87,8 +102,29 @@ def get_question():
 
 # 10. Buscar preguntas con unos determinados tags y mostrar su titulo, su autor
 # y su numero de contestaciones.
-def get_question_by_tag():
-    pass
+def get_question_by_tag(tags):
+
+    if not isinstance(tags, list):
+        tags = [tags]
+
+
+    #Para realizar la consulta y quedarnos solamente con los campos que queremos,
+    #y además contar el número de elementos, realizamos un aggregation pipeline
+
+    pipeline = [
+        {"$match": {"tags": {"$all": tags}}},
+        {"$project": {
+            "alias": 1,
+            "titulo": 1,
+            "_id": 0,
+            "num_contestaciones": { "$size": "$respuestas"}
+           }
+         }
+    ]
+         
+    questions = db.preguntas.aggregate(pipeline)
+
+    return json_util.dumps(questions)
 
 
 # 11. Ver todas las preguntas o respuestas generadas por un determinado usuario.
@@ -151,7 +187,6 @@ def createDirection(calle, numero, ciudad, pais):
             "pais": pais}
 
 #Crea un usuario para insertar en la bd. si la fecha en nula, pone la actual
-
 def createUser(alias, nombre, apellidos, calle, numero, ciudad, pais,
                experiencia, fecha=None):
     dir = createDirection(calle, numero, ciudad, pais)
@@ -171,6 +206,21 @@ def createUser(alias, nombre, apellidos, calle, numero, ciudad, pais,
     }
 
 
+#Crea una pregunta a partir de su contenido dado por parámetro
+def createQuestion( titulo, alias, texto, tags, fecha=None):
+    if not isinstance(tags, list):
+        tags = [tags]
+    if fecha is None:
+        fecha = datetime.utcnow()
+
+    return {"titulo": titulo,
+            "alias": alias,
+            "texto": texto,
+            "tags" : tags,
+            "fecha_creacion": fecha,
+            "respuestas" : []
+        }
+
 
 if __name__ == '__main__' : 
 
@@ -178,11 +228,17 @@ if __name__ == '__main__' :
     client = MongoClient('localhost',27017)
     db = client['sgdi_grupo04']
 
-    #insert_user("alias", "n", "a", "v", "n", "c", "p", ["asd", "bl"])
-    #update_user("alias", "a", "a", "a", "a", "a", "a", [])
 
+    # usuarios
+    #print insert_user("ShW", "Sherlock", "Holmes", "Baker Street", "221B", "London", "England", ["SQL", "Tor", "recovering"])
+    #print insert_user("Poison", "Hercules", "Poirot", "Le grand place", "3", "Bruxeles", "Belgium", ["Poison", "SQL", "murders"])
+    #print insert_user("alias", "n", "a", "v", "n", "c", "p", ["asd", "bl"])
+    #print update_user("alias", "a", "a", "a", "a", "a", "a", [])
+    #print get_user("ShW")
+    #print get_uses_by_expertise("SQL")
 
-    print get_user("ShW")
-    print "----------------------------------------------------------------------"
-    print get_uses_by_expertise("SQL")
+    #preguntas
+    #print add_question("Mejor manera de envenenar?", "Poison", "Me han encargado un trabajo, y necesito saber los dístintos métodos que existen para envenenar a una persona actualmente.", ["poison", "crimen"])
+    #print add_question("tit", "ShW", "asd", ["poison", "sql"])
 
+    print get_question_by_tag(["poison"])
