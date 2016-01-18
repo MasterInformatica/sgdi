@@ -18,8 +18,7 @@ import json
 ## Es necesario añadir los parámetros adecuados a cada función ##
 #################################################################
 
-
-#TODO: Pasar todo a txt. Hay que deolver json
+#TODO: control de errores en los accesos a la base de datos.
 
 # 1. Añadir un usuario
 def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
@@ -131,7 +130,6 @@ def get_question_by_tag(tags):
     if not isinstance(tags, list):
         tags = [tags]
 
-
     #Para realizar la consulta y quedarnos solamente con los campos que queremos,
     #y además contar el número de elementos, realizamos un aggregation pipeline
 
@@ -152,8 +150,21 @@ def get_question_by_tag(tags):
 
 
 # 11. Ver todas las preguntas o respuestas generadas por un determinado usuario.
-def get_entries_by_user():
-    pass
+def get_entries_by_user(alias):
+    #1.- conseguir las preguntas y respuestas del usuario
+    usuarios = db.usuarios.find_one({"alias": alias},
+                                    {"_id": 0,
+                                     "preguntas": 1,
+                                     "respuestas": 1})
+
+    ret = {"preguntas": [], "respuestas": [] }
+    #2.- Conseguir las preguntas
+    ret["preguntas"] = db.preguntas.find({"_id": {"$in": usuarios["preguntas"]}})
+    
+    #3.- Conseguir las respuestas
+    ret["respuestas"] = db.respuestas.find({"_id": {"$in": usuarios["respuestas"]}})
+    
+    return json_util.dumps(ret)
 
 
 # 12. Ver todas las puntuaciones de un determinado usuario ordenadas por 
@@ -185,8 +196,26 @@ def get_uses_by_expertise(topic):
 
 # 15. Visualizar las n preguntas mas actuales ordenadas por fecha, incluyendo
 # el numero de contestaciones recibidas.
-def get_newest_questions():
-    pass
+def get_newest_questions(n):
+    #utilizando un aggregation pipeline para realizar el proceso
+    pipeline = [
+        
+        {"$sort": { "fecha" : -1}},
+        {"$limit": n},      
+        {"$project": {
+            "_id": 0,
+            "alias": 1,
+            "titulo": 1,
+            "tags": 1,
+            "fecha_creacion": 1,
+            "num_contestaciones": { "$size": "$respuestas"}
+        }
+     }
+    ]
+
+    questions = db.preguntas.aggregate(pipeline)
+
+    return json_util.dumps(questions)
 
 
 # 16. Ver n preguntas sobre un determinado tema, ordenadas de mayor a menor por
@@ -297,5 +326,8 @@ if __name__ == '__main__' :
     #respuestas
     #print add_answer(ObjectId("569ccdfcb2c6de091937d0ba"), "ShW", "reskj puesta")
 
-    print get_question(ObjectId("569ccdfcb2c6de091937d0ba"))
+    #print get_question(ObjectId("569ccdfcb2c6de091937d0ba"))
     #print add_comment(ObjectId("569cd3ceb2c6de0ac2895e91"), "Perico", "esto es un comentario")
+
+    #print get_entries_by_user("ShW")
+    print get_newest_questions(2)
