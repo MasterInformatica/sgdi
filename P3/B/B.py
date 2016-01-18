@@ -19,6 +19,7 @@ import json
 #################################################################
 
 #TODO: control de errores en los accesos a la base de datos.
+#TODO: cuando se devuelva un array, convertirlo a JSON
 
 # 1. Añadir un usuario
 def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
@@ -34,11 +35,6 @@ def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
 def update_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
                 experiencia, fecha=None):
 
-    """ La versión de pymongo que estamos utilizando no permite actualizar por defecto
-    todos los campos de manera directa, sino que obliga a utilizar al menos algún operador
-    de actualización ($set en este caso):
-        raise ValueError('update only works with $ operators')
-    """
     user = createUser(alias, nombre, apellidos, calle, numero, ciudad,
                       pais, experiencia, fecha)
 
@@ -50,8 +46,6 @@ def update_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
 
 # 3. Añadir una pregunta
 def add_question(titulo, alias, texto, tags, fecha=None):
-    """ Suponemos que la API ha realizado las comprobaciones de seguridad pertinentes,
-    y el alias del usuario existe """
 
     # 1.- Insertamos la pregunta y guardamos su id
     question = createQuestion(titulo, alias, texto, tags, fecha)
@@ -247,9 +241,6 @@ def get_questions_by_tag(n, topic):
 
     
     
-
-
-
 ################################################################################
 ############################  FUNCIONES AUXILIARES  ############################
 ################################################################################
@@ -301,9 +292,14 @@ def createQuestion( titulo, alias, texto, tags, fecha=None):
 
 
 #Dados los datos de una respuesta, crea el objeto a insertar en la bd
-def createAnswer(pregunta_id, alias, texto, votos_pos=0, votos_neg=0, fecha=None):
+def createAnswer(pregunta_id, alias, texto, votos_pos=None, votos_neg=None, fecha=None):
     if fecha is None:
         fecha = datetime.utcnow()
+    if votos_pos is None:
+        votos_pos = 0
+    if votos_neg is None:
+        votos_neg = 0
+    
 
     return {"pregunta_id" : pregunta_id,
             "alias" : alias,
@@ -334,25 +330,39 @@ if __name__ == '__main__' :
 
 
     # usuarios
-    #print insert_user("ShW", "Sherlock", "Holmes", "Baker Street", "221B", "London", "England", ["SQL", "Tor", "recovering"])
-    #print insert_user("Poison", "Hercules", "Poirot", "Le grand place", "3", "Bruxeles", "Belgium", ["Poison", "SQL", "murders"])
-    #print insert_user("alias", "n", "a", "v", "n", "c", "p", ["asd", "bl"])
-    #print update_user("alias", "a", "a", "a", "a", "a", "a", [])
-    #print get_user("ShW")
-    #print get_uses_by_expertise("SQL")
+    # print insert_user("ShW", "Sherlock", "Holmes", 
+    #                   "Baker Street", "221B", "London", "England", 
+    #                   ["SQL", "Tor", "recovering"])
+    # print insert_user("Poison", "Hercules", "Poirot", 
+    #                   "Le grand place", "3", "Bruxeles", "Belgium", 
+    #                   ["Poison", "SQL", "murders"])
+    # print insert_user("alias", "n", "a", 
+    #                   "v", "n", "c", "p", 
+    #                   ["asd", "bl"])
+    
+    # print update_user("alias", "a", "a", "a", "a", "a", "a", [])
+    
+    # print get_user("ShW")
+    # print get_uses_by_expertise("SQL")
 
     #preguntas
-    #print add_question("Mejor manera de envenenar?", "Poison", "Me han encargado un trabajo, y necesito saber los dístintos métodos que existen para envenenar a una persona actualmente.", ["poison", "crimen"])
-    #print add_question("tit", "ShW", "asd", ["poison", "sql"])
-    #print get_question_by_tag(["poison", "sql"])
+    # print add_question("Titulo sobre SQL", "Poison", "Como puedo realizar un join por la izquierda?", ["sql", "bbdd"])
+    # print add_question("Titulo sobre javascript", "ShW", "Como funciona la orientación a objetos basada en prototipos?", ["javascript", "sql"])
+    
+    # print get_question_by_tag(["sql"])
+
+
 
     #respuestas
-    #print add_answer(ObjectId("569ccdfcb2c6de091937d0ba"), "ShW", "reskj puesta")
+    # print add_answer(ObjectId("569d3a341204b70e9ce41037"), "ShW", 
+    #                  "la clave es imaginar un objeto como un diccionario de punteros a función")
+    # print add_answer(ObjectId("569d3a341204b70e9ce41037"), "alias", 
+    #                  "Mira esta URL: aquí te lo explican ....")
 
-    #print get_question(ObjectId("569ccdfcb2c6de091937d0ba"))
-    #print add_comment(ObjectId("569cd3ceb2c6de0ac2895e91"), "Perico", "esto es un comentario")
+    # print get_question(ObjectId("569d3a341204b70e9ce41037"))
+    # print add_comment(ObjectId("569d3f9e1204b712cd7d58d8"), "Poison",
+    #                   "Esto es un comentario a tu respuesta. Muy buena!")
 
-    #print get_entries_by_user("ShW")
-    #print get_newest_questions(2)
-
-    print get_questions_by_tag(5, ["poison", "sql"])
+    # print get_entries_by_user("ShW")
+    # print get_newest_questions(2)
+    # print get_questions_by_tag(2, ["sql"])
