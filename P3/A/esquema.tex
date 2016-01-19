@@ -10,39 +10,155 @@
 \usepackage{fancyhdr}
 \usepackage{lastpage}
 \usepackage{xcolor}
+\usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{subcaption}
-n\usepackage[fleqn]{amsmath}
+\usepackage[fleqn]{amsmath}
 \parindent 0in 
 \setlength{\mathindent}{0pt}
-
+\usepackage{float}
 
 %% DEFINICIONES
 \newcommand{\TODO}[1]{{\huge \color{red} \textbf{TODO: }#1 }}
 \newcommand{\todo}[1]{{\large \color{red} \textbf{TODO: }#1 }}
 
+\lstset{%
+  % backgroundcolor=\color{yellow!20},%
+  basicstyle=\ttfamily,%
+  numbers=left, numberstyle=\scriptsize, stepnumber=1, numbersep=5pt,%
+  frame=single%
+}%
 
+
+
+\title{Sistemas de Gestión de Datos y de la Información\\Práctica 3:
+  MongoDB}
+\author{Luis M. Costero Valero --- Jesús J. Doménech Arellano}
+\date{22 de enero de 2016}
 
 \begin{document} 
-\pagestyle{fancy}
-\fancyhf{}
-\lhead{P3: MongoDB}
-\rhead{Luis Mª Costero Valero, Jesús J. Doménech Arellano}
-\rfoot{\thepage\ / \pageref{LastPage}}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0.4pt}
-\section*{}
+\maketitle
 
 \textbf{Descripción del esquema implícito escogido:}\\
-
 Para el diseño de la base de datos del sitio de preguntas propuesto en la
 práctica, se ha considerado la creación de 4 colecciones para almacenar los
 usuarios, las preguntas, las contestaciones y comentarios, y las
 puntuaciones respectivamente.
+A continuación se muestra el esquema de cada una de las colecciones
+utilizadas, y las razones que se han considerado para su diseño:\\
 
-\todo{Esto es un draft, cuando esté la bd, pues acabr de escribirlo
-  mejor:}\\
+\textbf{Usuarios:}\\
 
+\begin{table}[h] \centering
+  \begin{tabular}{@{}llll@{}} \toprule 
+    Campo && Tipo & Descripción \\ \midrule 
+    \_id            && ObjectId & Identificador único de la instancia \\
+    alias           && Texto & Identificador único del usuario \\
+    nombre          && Texto & Nombre del usuario \\
+    apellidos       && Texto & Apellidos del usuario \\
+    experiencia     && [Texto] & Array con los temas que domina el usuarios \\
+    fecha\_creacion && Date & Fecha de creación \\
+              & \multicolumn{1}{|l}{calle} & Texto & Dirección del usuario \\
+    dirección & \multicolumn{1}{|l}{pais} & Texto & Pais del usuario \\
+              & \multicolumn{1}{|l}{ciudad} & Texto & Ciudad del usuario \\
+              & \multicolumn{1}{|l}{numero} & Texto & Número de la viviendo \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+
+De este diseña destacar que la dirección se encuentra un objeto JSON
+anidado en la tabla, en vez de referenciado ya que este posee poco tamaño y
+no va a sufrir muchos cambios. Asimismo, se ha decidido no tener
+referencias desde un usuario a las preguntas, respuestas, comentarios o
+votaciones que realiza en el sitio, sino que el resto de colecciones tengan
+referencias a los usuarios.\\
+
+A continuación se muestra un ejemplo de usuario en la colección: \\
+\newpage{}
+\begin{figure}[!h]
+\begin{lstlisting}
+{"_id":{"$oid":"569d39751204b70e83ab2fbd"},
+ "nombre":"Sherlock",
+ "apellidos":"Holmes",
+ "alias":"ShW",
+ "experiencia":["SQL", "Tor", "recovering"],
+ "fecha_creacion":{"$date":"2016-01-18T19:13:57.966Z"},
+ "direccion":{"calle":"Baker Street",
+	      "pais":"England",
+	      "ciudad":"London",
+	      "numero":"221B"}
+}
+\end{lstlisting}
+\end{figure}
+
+
+
+\textbf{Preguntas:}\\
+
+
+\begin{table}[h] \centering
+  \begin{tabular}{@{}lll@{}} \toprule 
+    Campo & Tipo & Descripción \\ \midrule 
+    \_id     & ObjectId & Identificador único de la instancia \\
+    alias    & Texto & Referencia al alias del usuario que preguntó \\
+    titulo   & Texto & Título de la pregunta \\
+    texto    & Texto & Cuerpo de la pregunta \\
+    tags     & [Texto] & Array con los temas de los que trata la pregunta \\
+    fecha\_creacion & Date & Fecha de creación \\
+    respuestas & [ObjectId] & Array con referencias a los ids de las
+                              respuestas a esta pregunta \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+Se ha decidido separar las preguntas en una colección distinta a los
+usuarios ya que estas van a ser numerosas y no acotadas. Para mantener la
+referencia con el usuario que ha creado la pregunta, se almacena el alias
+del usuario (identificador único para cada usuario). De esta manera se
+consigue obtener el alias del usuario que ha creado la pregunta sin
+necesidad de consultar la colección de usuarios.
+
+Puesto que las respuestas son ilimitadas, y además pueden llegar a tener un
+gran tamaño (pueden incluir contenido multimedia), se ha decidido tener un
+array de ObjectId correspondiente a los identificadores únicos de las
+respuestas que tiene la pregunta. De esta manera, además se consigue que
+para obtener el número de respuestas de una pregunta solo sea necesario
+obtener la longitud de ese array.
+
+Por último, para agilizar las búsquedas y obtener todas las preguntas de un usuario, se
+deberá tener un índice sobre el campo ``alias''.
+
+Un ejemplo de documento de esta colección sería:
+\begin{figure}[H]
+  \centering
+\begin{lstlisting}
+{"_id":{"$oid":"569d3a341204b70e9ce41037"},
+ "titulo":"POO en javascript"},
+ "texto":"Como funciona la orientacióxn a objetos basada en 
+          prototipos?",
+ "tags":["javascript", "poo"],
+ "fecha_creacion":{"$date":"2016-01-18T19:17:08.131Z"},
+ "alias":"ShW",
+ "respuestas":[{"$oid":"569d3d4f1204b7129cd4fdef"},
+	       {"$oid":"569d3d4f1204b7129cd4fdf0"},
+	       {"$oid":"569d3f9e1204b712cd7d58d7"},
+	       {"$oid":"569d3f9e1204b712cd7d58d8"},
+	       {"$oid":"569d3ff71204b712d7415645"},
+	       {"$oid":"569d3ff71204b712d7415646"}]
+\end{lstlisting}
+\end{figure}
+
+
+\textbf{Comentarios y respuestas:}
+
+
+
+\vspace{2cm}
+\hrule
+\begin{center}\textcolor{red}{DESDE AQUI ES TODO VIEJO}\end{center}
+\hrule
+\vspace{2cm}
 
 Las consideraciones que se han tomado para realizar este esquema han sido:\\
 
@@ -61,31 +177,13 @@ para mostrar esa información al consultar una respuesta.\\
 -- Los comentarios se encuentran anidados a las respuestas para no tener
 que añadir un campo más referenciando a la contestación que comentan, y
 además conseguir que la coleccion almacene un único tipo de documento.\\
+-- Las preguntas tienen referencias a las respuestas, pero no el texto
+duplicado, ya que aunque se pierda velocidad en el acceso, como los
+comentarios no son acotados y pueden tener multimedia se perdería muchos
+datos al duplicarlo.\\
 -- Mas cosas que he pensado (y mucho) pero ahora no me vienen a la cabeza\\
 
 
-
-
-\textbf{USUARIOS:} Contiene:
-
-\todo{Aunque este ejemplo está puesto aquí a pelo, es mejor extraerlo de la
-  base de datos}
-\begin{lstlisting}
-{ "alias": "ShW",
-  "Nombre": "Sherlock",
-  "Apellidos": "Holmes",
-  "experiencia": ["SQL", "PayPal", "Tor"],
-  "fecha_creacion": 20150122212536,
-  "direccion" : { "calle": "Baker Street",
-                  "numero": "221",
-                  "letra": "B",
-                  "pais": "Inglaterra",
-                  "ciudad": "Londres"
-                }
-}
-\end{lstlisting}
-
-\textbf{Preguntas:}
 \end{document}
 
 

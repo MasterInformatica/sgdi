@@ -199,7 +199,7 @@ def get_question_by_tag(tags):
 # 11. Ver todas las preguntas o respuestas generadas por un determinado usuario.
 def get_entries_by_user(alias):
     """ Para optimizar esta función, sería interesante considerar la posibilidad
-    de poner un índice sobre el campo "alias" tanto de la colecciónd de
+    de poner un índice sobre el campo "alias" tanto de la colección de
     preguntas como de respuestas
     """
 
