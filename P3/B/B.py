@@ -51,10 +51,6 @@ def add_question(titulo, alias, texto, tags, fecha=None):
     question = createQuestion(titulo, alias, texto, tags, fecha)
     id = db.preguntas.insert_one(question).inserted_id
 
-    # 2.- Guaramos en la tabla de usuarios la referencia
-    db.usuarios.update_one({"alias":alias},
-                           {"$push": { "preguntas": id } })
-
     
     return json_util.dumps({"inserted_id": id})
 
@@ -66,9 +62,7 @@ def add_answer(pregunta_id, alias, texto, fecha=None):
     answer = createAnswer(pregunta_id, alias, texto, fecha)
     id = db.respuestas.insert_one(answer).inserted_id
     
-    #2.- Guardamos la referencia tanto en las preguntas como en el usuario
-    db.usuarios.update_one({"alias": alias},
-                           {"$push": {"respuestas": id} })
+    #2.- Guardamos la referencia en la pregunta para poder acceder despues
     db.preguntas.update_one({"_id": pregunta_id},
                             {"$push" : {"respuestas": id} })
 
@@ -87,19 +81,78 @@ def add_comment(respuesta_id, alias, texto, fecha=None):
 
 
 # 6. Puntuar una respuesta.
-def score_answer():
-    pass
+def score_answer(respuesta_id, voto, alias):
+    """ Suponemos que el voto nos va a venir en formato +/- 1.
+    """
+    #1.- Incrementamos el voto en la colección de respuestas, y nos quedamos con
+    # el id de la pregunta para poder acceder a su titulo
+    if voto > 0 :
+        campo_modificar = "votos_pos"
+    else:
+        campo_modificar = "votos_neg"
+    
+        
+    preg_id = db.respuestas.find_one_and_update(
+        {"_id":respuesta_id}, {"$inc": {campo_modificar : 1}},
+        {"_id":0, "pregunta_id":1})
+
+    preg_id=preg_id["pregunta_id"]
+    
+    
+    #2.- Conseguimos el titulo de la pregunta
+    titulo = db.preguntas.find_one({"_id": preg_id}, 
+                                   {"_id":0, "titulo":1})["titulo"]
+
+    #3.- Insertamos el voto en su colección
+    score = createScore(respuesta_id, voto, alias, titulo)
+    id = db.votos.insert_one(score).inserted_id
+
+    return json_util.dumps({"inserted_id": id})
 
 
 # 7. Modificar una puntuacion de buena a mala o viceversa.
-def update_score():
-    pass
+def update_score(voto_id):
+    """ Modificamos la puntuacion multiplicando por -1. Cogemos la anterior para
+    saber como modificar la colección de respuestas
+    """
+    ret1 = db.votos.find_one_and_update(
+        {"_id": voto_id}, {"$mul" : { "voto" : -1 }},
+        {"_id":0, "respuesta_id": 1, "voto":1})
+
+    #por defecto, devuelve el valor que había antes de actualizar
+    if ret1["voto"] > 0 :
+        inc = "votos_neg"
+        dec = "votos_pos"
+    else:
+        inc = "votos_pos"
+        dec = "votos_neg"
+
+    ret2 = db.respuestas.update_one({"_id": ret1["respuesta_id"]},
+                                {"$inc": {inc : 1, dec : -1}})
+
+
+    return json_util.dumps({"modified_count" : ret2.modified_count})
 
 
 # 8. Borrar una pregunta junto con todas sus respuestas, comentarios y 
 # puntuaciones
-def delete_question():
-    pass
+def delete_question(pregunta_id):
+    #1.- Borramos la pregunta, y nos quedamos con el array de respuestas.
+    resp = db.preguntas.find_one_and_delete({"_id":pregunta_id},
+                                            {"_id": 0, "respuestas":1})
+    resp = resp["respuestas"]
+    
+    if(len(resp) == 0):
+        return json_util.dumps({"status": "ok"})
+    
+    #2.- Con ese array, borramos todas las respuestas
+    respDel = db.respuestas.delete_many({"_id": {"$in": resp}}).deleted_count
+
+    #3.- Con ese array, borramos todos los votos
+    votDel = db.votos.delete_many({"respuesta_id" : {"$in":resp}}).deleted_count
+    
+    return json_util.dumps({"deleted_answers": respDel,
+                            "deleted_scores": votDel})
 
 
 # 9. Visualizar una determinada pregunta junto con todas sus contestaciones
@@ -145,18 +198,17 @@ def get_question_by_tag(tags):
 
 # 11. Ver todas las preguntas o respuestas generadas por un determinado usuario.
 def get_entries_by_user(alias):
-    #1.- conseguir las preguntas y respuestas del usuario
-    usuarios = db.usuarios.find_one({"alias": alias},
-                                    {"_id": 0,
-                                     "preguntas": 1,
-                                     "respuestas": 1})
+    """ Para optimizar esta función, sería interesante considerar la posibilidad
+    de poner un índice sobre el campo "alias" tanto de la colecciónd de
+    preguntas como de respuestas
+    """
 
     ret = {"preguntas": [], "respuestas": [] }
-    #2.- Conseguir las preguntas
-    ret["preguntas"] = db.preguntas.find({"_id": {"$in": usuarios["preguntas"]}})
+    #1.- Conseguir las preguntas
+    ret["preguntas"] = db.preguntas.find({"alias": alias})
     
     #3.- Conseguir las respuestas
-    ret["respuestas"] = db.respuestas.find({"_id": {"$in": usuarios["respuestas"]}})
+    ret["respuestas"] = db.respuestas.find({"alias": alias})
     
     return json_util.dumps(ret)
 
@@ -164,8 +216,11 @@ def get_entries_by_user(alias):
 # 12. Ver todas las puntuaciones de un determinado usuario ordenadas por 
 # fecha. Este listado debe contener el tıtulo de la pregunta original 
 # cuya respuesta se puntuo.
-def get_scores():
-    pass
+def get_scores(alias):
+
+    votos = db.votos.find({"alias":alias},{"_id":0}).sort("fecha_creacion")
+    
+    return json_util.dumps({"scores": votos})
 
 
 # 13. Ver todos los datos de un usuario.
@@ -194,7 +249,7 @@ def get_newest_questions(n):
     #utilizando un aggregation pipeline para realizar el proceso
     pipeline = [
         
-        {"$sort": { "fecha" : -1}},
+        {"$sort": { "fecha_creacion" : -1}},
         {"$limit": n},      
         {"$project": {
             "_id": 0,
@@ -269,9 +324,7 @@ def createUser(alias, nombre, apellidos, calle, numero, ciudad, pais,
             "apellidos": apellidos,
             "direccion": dir,
             "experiencia": experiencia,
-            "fecha_creacion": fecha,
-            "preguntas": [],
-            "respuestas": []
+            "fecha_creacion": fecha
     }
 
 
@@ -308,7 +361,7 @@ def createAnswer(pregunta_id, alias, texto, votos_pos=None, votos_neg=None, fech
             "votos_neg" : votos_neg,
             "fecha_creacion" : fecha,
             "comentarios" : []
-        }
+    }
 
 
 #Dados los datos de un comentario, crea el objeto para insertar en la bd
@@ -319,8 +372,24 @@ def createComment(alias, texto, fecha=None) :
     return {"alias": alias,
             "texto": texto,
             "fecha_creacion": fecha
-            }
+    }
     
+
+#Dados los datos de un voto, crea el objeto para insertalo en la bd
+def createScore(respuesta_id, voto, alias, titulo, fecha = None):
+    if fecha is None:
+        fecha = datetime.utcnow()
+
+    return {"respuesta_id": respuesta_id,
+            "voto": voto,
+            "alias": alias,
+            "titulo": titulo,
+            "fecha_creacion": fecha
+    }
+        
+
+
+
 
 if __name__ == '__main__' : 
 
@@ -366,3 +435,11 @@ if __name__ == '__main__' :
     # print get_entries_by_user("ShW")
     # print get_newest_questions(2)
     # print get_questions_by_tag(2, ["sql"])
+
+
+    #print score_answer(ObjectId("569d3f9e1204b712cd7d58d7"), -1, "alias")
+
+    #print update_score(ObjectId("569e20e11204b70e4eb8bf09"))
+    # print get_scores("alias")
+
+    print delete_question(ObjectId("569d3a341204b70e9ce41037"))
