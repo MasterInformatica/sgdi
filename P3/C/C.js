@@ -124,12 +124,20 @@ function mr3(){
 function mr4(){
 	return db.agg.mapReduce(
 	  function(){
+	    if (!users[this.country])
+	      users[this.country] = 1;
+	    else 
+	      users[this.country] ++;
 	      emit(this.country,this.num_posts);
 	  },
 	  function(key,values){
-	    return Array.sum(values)/values.length;
+	    return Array.sum(values);
 	  },
 	  {
+	    scope: {users:[]},
+	    finalize: function(key,reducedValue){
+	      return reducedValue/users[key];
+	    },
 	    out : "result"
 	  }).find();
 }
