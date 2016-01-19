@@ -20,6 +20,7 @@ import json
 
 #TODO: control de errores en los accesos a la base de datos.
 #TODO: cuando se devuelva un array, convertirlo a JSON
+#TODO: quizás al hacer los updates hayq eu modifcar la fecha.
 
 # 1. Añadir un usuario
 def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,

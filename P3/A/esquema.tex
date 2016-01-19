@@ -1,7 +1,7 @@
 \documentclass[11pt,a4paper]{article}
 
-\usepackage[utf8]{inputenc} 
-\usepackage[T1]{fontenc} 
+\usepackage[latin1]{inputenc} 
+%\usepackage[T1]{fontenc} 
 \usepackage[spanish]{babel}
 \decimalpoint
 \setlength{\parskip}{0.5\baselineskip} 
@@ -31,50 +31,50 @@
 
 
 
-\title{Sistemas de GestiÃ³n de Datos y de la InformaciÃ³n\\PrÃ¡ctica 3:
+\title{Sistemas de Gestión de Datos y de la Información\\Práctica 3:
   MongoDB}
-\author{Luis M. Costero Valero --- JesÃºs J. DomÃ©nech Arellano}
+\author{Luis M. Costero Valero --- Jesús J. Doménech Arellano}
 \date{22 de enero de 2016}
 
 \begin{document} 
 \maketitle
 
-\textbf{DescripciÃ³n del esquema implÃ­cito escogido:}\\
-Para el diseÃ±o de la base de datos del sitio de preguntas propuesto en la
-prÃ¡ctica, se ha considerado la creaciÃ³n de 4 colecciones para almacenar los
+\textbf{Descripción del esquema implícito escogido:}\\
+Para el diseño de la base de datos del sitio de preguntas propuesto en la
+práctica, se ha considerado la creación de 4 colecciones para almacenar los
 usuarios, las preguntas, las contestaciones y comentarios, y las
 puntuaciones respectivamente.
-A continuaciÃ³n se muestra el esquema de cada una de las colecciones
-utilizadas, y las razones que se han considerado para su diseÃ±o:\\
+A continuación se muestra el esquema de cada una de las colecciones
+utilizadas, y las razones que se han considerado para su diseño:\\
 
 \textbf{Usuarios:}\\
 
 \begin{table}[h] \centering
   \begin{tabular}{@{}llll@{}} \toprule 
-    Campo && Tipo & DescripciÃ³n \\ \midrule 
-    \_id            && ObjectId & Identificador Ãºnico de la instancia \\
-    alias           && Texto & Identificador Ãºnico del usuario \\
+    Campo && Tipo & Descripción \\ \midrule 
+    \_id            && ObjectId & Identificador único de la instancia \\
+    alias           && Texto & Identificador único del usuario \\
     nombre          && Texto & Nombre del usuario \\
     apellidos       && Texto & Apellidos del usuario \\
     experiencia     && [Texto] & Array con los temas que domina el usuarios \\
-    fecha\_creacion && Date & Fecha de creaciÃ³n \\
-              & \multicolumn{1}{|l}{calle} & Texto & DirecciÃ³n del usuario \\
-    direcciÃ³n & \multicolumn{1}{|l}{pais} & Texto & Pais del usuario \\
+    fecha\_creacion && Date & Fecha de creación \\
+              & \multicolumn{1}{|l}{calle} & Texto & Dirección del usuario \\
+    dirección & \multicolumn{1}{|l}{pais} & Texto & Pais del usuario \\
               & \multicolumn{1}{|l}{ciudad} & Texto & Ciudad del usuario \\
-              & \multicolumn{1}{|l}{numero} & Texto & NÃºmero de la viviendo \\
+              & \multicolumn{1}{|l}{numero} & Texto & Número de la viviendo \\
     \bottomrule
 \end{tabular}
 \end{table}
 
 
-De este diseÃ±a destacar que la direcciÃ³n se encuentra un objeto JSON
-anidado en la tabla, en vez de referenciado ya que este posee poco tamaÃ±o y
+De este diseña destacar que la dirección se encuentra un objeto JSON
+anidado en la tabla, en vez de referenciado ya que este posee poco tamaño y
 no va a sufrir muchos cambios. Asimismo, se ha decidido no tener
 referencias desde un usuario a las preguntas, respuestas, comentarios o
 votaciones que realiza en el sitio, sino que el resto de colecciones tengan
 referencias a los usuarios.\\
 
-A continuaciÃ³n se muestra un ejemplo de usuario en la colecciÃ³n: \\
+A continuación se muestra un ejemplo de usuario en la colección: \\
 \newpage{}
 \begin{figure}[!h]
 \begin{lstlisting}
@@ -99,43 +99,43 @@ A continuaciÃ³n se muestra un ejemplo de usuario en la colecciÃ³n: \\
 
 \begin{table}[h] \centering
   \begin{tabular}{@{}lll@{}} \toprule 
-    Campo & Tipo & DescripciÃ³n \\ \midrule 
-    \_id     & ObjectId & Identificador Ãºnico de la instancia \\
-    alias    & Texto & Referencia al alias del usuario que preguntÃ³ \\
-    titulo   & Texto & TÃ­tulo de la pregunta \\
+    Campo & Tipo & Descripción \\ \midrule 
+    \_id     & ObjectId & Identificador único de la instancia \\
+    alias    & Texto & Referencia al alias del usuario que preguntó \\
+    titulo   & Texto & Título de la pregunta \\
     texto    & Texto & Cuerpo de la pregunta \\
     tags     & [Texto] & Array con los temas de los que trata la pregunta \\
-    fecha\_creacion & Date & Fecha de creaciÃ³n \\
+    fecha\_creacion & Date & Fecha de creación \\
     respuestas & [ObjectId] & Array con referencias a los ids de las
                               respuestas a esta pregunta \\
     \bottomrule
 \end{tabular}
 \end{table}
 
-Se ha decidido separar las preguntas en una colecciÃ³n distinta a los
+Se ha decidido separar las preguntas en una colección distinta a los
 usuarios ya que estas van a ser numerosas y no acotadas. Para mantener la
 referencia con el usuario que ha creado la pregunta, se almacena el alias
-del usuario (identificador Ãºnico para cada usuario). De esta manera se
+del usuario (identificador único para cada usuario). De esta manera se
 consigue obtener el alias del usuario que ha creado la pregunta sin
-necesidad de consultar la colecciÃ³n de usuarios.
+necesidad de consultar la colección de usuarios.
 
-Puesto que las respuestas son ilimitadas, y ademÃ¡s pueden llegar a tener un
-gran tamaÃ±o (pueden incluir contenido multimedia), se ha decidido tener un
-array de ObjectId correspondiente a los identificadores Ãºnicos de las
-respuestas que tiene la pregunta. De esta manera, ademÃ¡s se consigue que
-para obtener el nÃºmero de respuestas de una pregunta solo sea necesario
+Puesto que las respuestas son ilimitadas, y además pueden llegar a tener un
+gran tamaño (pueden incluir contenido multimedia), se ha decidido tener un
+array de ObjectId correspondiente a los identificadores únicos de las
+respuestas que tiene la pregunta. De esta manera, además se consigue que
+para obtener el número de respuestas de una pregunta solo sea necesario
 obtener la longitud de ese array.
 
-Por Ãºltimo, para agilizar las bÃºsquedas y obtener todas las preguntas de un usuario, se
-deberÃ¡ tener un Ã­ndice sobre el campo ``alias''.
+Por último, para agilizar las búsquedas y obtener todas las preguntas de un usuario, se
+deberá tener un índice sobre el campo ``alias''.
 
-Un ejemplo de documento de esta colecciÃ³n serÃ­a:
+Un ejemplo de documento de esta colección sería:
 \begin{figure}[H]
   \centering
 \begin{lstlisting}
 {"_id":{"$oid":"569d3a341204b70e9ce41037"},
  "titulo":"POO en javascript"},
- "texto":"Como funciona la orientaciÃ³xn a objetos basada en 
+ "texto":"Como funciona la orientación a objetos basada en 
           prototipos?",
  "tags":["javascript", "poo"],
  "fecha_creacion":{"$date":"2016-01-18T19:17:08.131Z"},
@@ -150,7 +150,85 @@ Un ejemplo de documento de esta colecciÃ³n serÃ­a:
 \end{figure}
 
 
-\textbf{Comentarios y respuestas:}
+\textbf{Respuestas y comentarios:}
+\begin{table}[h] \centering
+  \begin{tabular}{@{}llll@{}} \toprule 
+    Campo && Tipo & Descripción \\ \midrule 
+    \_id            && ObjectId & Identificador único de la instancia \\
+    alias           && Texto & Identificador único del usuario que ha
+                               realizado la respuesta \\
+    votos\_pos       && Int  & Número de votos positivos \\
+    votos\_neg       && Int & Número de votos negativos \\
+    pregunta\_id     && ObjectId & Identificador de la pregunta a la que responde \\
+    fecha\_creacion && Date & Fecha de creación \\
+    comentarios && [comentario] & Array de comentarios como se describen a
+                                   continuación\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Donde un comentario viene definido por la siguiente estructura:
+\begin{table}[h] \centering
+  \begin{tabular}{@{}llll@{}} \toprule 
+    Campo && Tipo & Descripción \\ \midrule 
+    alias && Texto & Identificador único del usuario que ha creado el comentario \\
+    fecha\_creacion && Date & Fecha de creación \\
+    texto && Texto & Texto del comentario \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+\begin{lstlisting}
+{"_id":{"$oid":"569d3f9e1204b712cd7d58d8"},
+ "alias":"alias",
+ "votos_pos":0,
+ "votos_neg":1,
+ "pregunta_id":{"$oid":"569d3a341204b70e9ce41037"},
+ "fecha_creacion":{"$date":"2016-01-18T19:40:14.709Z"},
+ "texto":"Mira esta URL: aquí te lo explican ....",
+ "comentarios":[{"alias":"Poison",
+		 "fecha_creacion":{"$date":"2016-01-18T19:41:43.107Z"},
+		 "texto":"Esto es un comentario a tu respuesta. 
+                          Muy buena!"}]
+}
+ 
+\end{lstlisting}
+\end{figure}
+
+
+
+
+\textbf{Votaciones:}
+\begin{table}[h] \centering
+  \begin{tabular}{@{}lll@{}} \toprule 
+    Campo & Tipo & Descripción \\ \midrule 
+    \_id & ObjectId & Identificador único de la instancia \\
+    respuesta\_id & ObjectId & Identificador de la respuesta a la que se ha
+                              votado \\
+    alias & Text & Identificador único del usuario \\
+    voto & Int & Valor del voto \\
+    titulo & Text & Título de la pregunta en la que está el comentario \\
+    fecha\_creacion & Date & Fecha del voto \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{figure}[H]
+  \centering
+\begin{lstlisting}
+{"_id":{"$oid":"569e20e11204b70e4eb8bf09"},
+ "respuesta_id":{"$oid":"569d3f9e1204b712cd7d58d7"},
+ "alias":"ShW",
+ "voto":1,
+ "titulo":"Titulo sobre javascript",
+ "fecha_creacion":{"$date":"2016-01-19T11:41:21.018Z"}
+}
+\end{lstlisting}
+\end{figure}
 
 
 
@@ -164,22 +242,22 @@ Las consideraciones que se han tomado para realizar este esquema han sido:\\
 
 -- Separar preguntas de comentarios y respuestas ya que los comentarios no
 tienen un numero acotado, y ademas al contener multimedia van a ser
-grandes. (mÃ¡s cosas??)\\
--- La pregunta referencia a las contestaciones para que asÃ­ se pueda saber
-el nÃºmero de contestaciones sin necesidad de consulatar la coleccion.\\
--- Se ha decidido separar la informaciÃ³n de puntuaciones a otra tabla
+grandes. (más cosas??)\\
+-- La pregunta referencia a las contestaciones para que así se pueda saber
+el número de contestaciones sin necesidad de consulatar la coleccion.\\
+-- Se ha decidido separar la información de puntuaciones a otra tabla
 porque se prevee que va a haber muchas escrituras y lecturas de
-estas. AdemÃ¡s, esto permite obtener todas las puntutaciones de un usuario
+estas. Además, esto permite obtener todas las puntutaciones de un usuario
 de manera sencilla.\\
--- Aunque las valoraciones estÃ¡n en una coleccion independiente, los
+-- Aunque las valoraciones están en una coleccion independiente, los
 documentos de respuestas lelvan un contador de votos positivos y negativos
-para mostrar esa informaciÃ³n al consultar una respuesta.\\
+para mostrar esa información al consultar una respuesta.\\
 -- Los comentarios se encuentran anidados a las respuestas para no tener
-que aÃ±adir un campo mÃ¡s referenciando a la contestaciÃ³n que comentan, y
-ademÃ¡s conseguir que la coleccion almacene un Ãºnico tipo de documento.\\
+que añadir un campo más referenciando a la contestación que comentan, y
+además conseguir que la coleccion almacene un único tipo de documento.\\
 -- Las preguntas tienen referencias a las respuestas, pero no el texto
 duplicado, ya que aunque se pierda velocidad en el acceso, como los
-comentarios no son acotados y pueden tener multimedia se perderÃ­a muchos
+comentarios no son acotados y pueden tener multimedia se perdería muchos
 datos al duplicarlo.\\
 -- Mas cosas que he pensado (y mucho) pero ahora no me vienen a la cabeza\\
 
