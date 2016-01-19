@@ -78,8 +78,8 @@ function mr1(){
 	  },
 	  {
 	    query : { country: "Spain"},
-	    out : {inline: 1}
-	  }).results;
+	    out : "result"
+	  }).find();
 }
 
 
@@ -97,8 +97,8 @@ function mr2(){
 	    return Array.sum(values);
 	  },
 	  {
-	    out : {inline: 1}
-	  });
+	    out : "result"
+	  }).find();
 }
 
 
@@ -114,8 +114,8 @@ function mr3(){
 	  },
 	  {
 //	    query: {"num_posts": {$gt: "num_answers"}},
-	    out : {inline: 1}
-	  });
+	    out : "result"
+	  }).find();
 
 }
 
@@ -130,7 +130,7 @@ function mr4(){
 	    return Array.sum(values)/values.length;
 	  },
 	  {
-	    out : "total"
+	    out : "result"
 	  }).find();
 }
 
