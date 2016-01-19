@@ -1,0 +1,3 @@
+{"_id":{"$oid":"569e20e11204b70e4eb8bf09"},"respuesta_id":{"$oid":"569d3f9e1204b712cd7d58d7"},"alias":"ShW","voto":1,"titulo":"Titulo sobre javascript","fecha_creacion":{"$date":"2016-01-19T11:41:21.018Z"}}
+{"_id":{"$oid":"569e20e61204b70e5652ff96"},"respuesta_id":{"$oid":"569d3f9e1204b712cd7d58d7"},"alias":"alias","voto":1,"titulo":"Titulo sobre javascript","fecha_creacion":{"$date":"2016-01-19T11:41:26.917Z"}}
+{"_id":{"$oid":"569e20ef1204b70e5fbf611a"},"respuesta_id":{"$oid":"569d3f9e1204b712cd7d58d7"},"alias":"alias","voto":-1,"titulo":"Titulo sobre javascript","fecha_creacion":{"$date":"2016-01-19T11:41:35.562Z"}}
