@@ -1,0 +1,153 @@
+#+title: Modelos de Recuperación de la Información
+#+author: Doménech Arellano, Jesús Javier
+#+date: 7 de Diciembre de 2015
+Sean los siguientes datos:\\
+V = {"hombre","grande”, “mueve”, “piedras”, “abeto”, “sobre”, “telómero”}\\
+d_1 = “hombre grande mueve piedras”\\
+d_2 = “abeto grande sobre piedras”\\
+d_3 = “grande telómero grande”
+* Modelo booleano
+Consideramos las siguientes consultas:\\
+q_1 = “hombre OR piedras” \hspace{ 2 mm} q_2 = “grande AND NOT abeto”
+** Calcula c(d_j) y c(q_k) para j \in [1..3], k \in [1..2]
+c(d_1) = (1, 1, 1, 1, 0, 0, 0)\\
+c(d_2) = (0, 1, 0, 1, 1, 1, 0)\\
+c(d_3) = (0, 1, 0, 0, 0, 0, 1)\\
+\\
+c(q_1) = {(1,x_0,x_1,x_2,x_3,x_4,x_5),(x_6,x_7,x_8,1,x_9,x_{10},x_{11})}, x_j \in {0,1}, j \in [0..11]\\
+c(q_2) = {(x_0,1,x_1,x_2,0,x_3,x_4)}, x_j \in {0,1}, j \in [0..4]
+** Calcula R(d_j,q_k) para j \in [1..3], k \in [1..2]
+Si d_j está en el conjunto q_k entonces R(d_j,q_k) = 1, sino será 0\\
+R(d_1, q_1) = 1 \hspace{10 mm} R(d_1, q_2) = 1\\
+R(d_2, q_1) = 1 \hspace{10 mm} R(d_2, q_2) = 0\\
+R(d_3, q_1) = 0 \hspace{10 mm} R(d_3, q_2) = 1
+Por este resultado se obtiene que para la consulta q_1 los documentos
+válidos son el d_1 y el d_2, mientras que para la consulta q_2 los
+documentos válidos son d_1 y d_3.
+* Modelo vectorial
+Consideremos las siguientes consultas:\\
+q_1 = “hombre grande”\\
+q_2 = “abeto grande”\\
+q_3 = “abeto piedras”
+** Vectores asociados a los documentos d_j y las consultas q_k
+El objetivo final es calcular estos vectores para su posterior
+utilización en el cálculo de relaciones. Los vectores siguen el
+siguiente formato:\\
+Vd_i = (w_{1i}, w_{2i}, ..., w_{7i}) para i \in [1..3]\\
+Vq_k = (w_{1q_k}, w_{2q_k}, ..., w_{7q_k}) para k \in [1..3]
+*** Documentos
+La frecuencia, f_{ij}, es el número de apariciones del término clave k_i en el
+documento d_j.\\
+Expreso F_{d_j} = (f_{1j}, ... , f_{7j}).\\
+F_{d_1} = (1, 1, 1, 1, 0, 0, 0) \hspace{2 mm} F_{d_2} = (0, 1, 0, 1,
+1, 1, 0) \hspace{2 mm} F_{d_3} = (0, 2, 0, 0, 0, 0, 1) \\
+\\
+La frecuencia de término clave, tf_{ij}, de un término clave k_i en un
+documento d_j se define como:\\
+tf_{ij} = 
+\left\{
+	\begin{array}{ll}
+		1 + log(f_{ij}) & \mbox{if } f_{ij} > 0 \\
+		0 & \mbox{if } x = 0
+	\end{array}
+\right
+Expreso tF_{d_j} = (tf_{1j},...,tf_{7j}).\\
+tF_{d_1} = (1+log_2(1),1+log_2(1),1+log_2(1),1+log_2(1),0,0,0) =
+(1,1,1,1,0,0,0) \\
+tF_{d_2} = (0,1+log_2(1),0,1+log_2(1),1+log_2(1),1+log_2(1),0) =
+(0,1,0,1,1,1,0) \\
+tF_{d_3} = (0,1+log_2(2),0,0,0,0,1+log_2(1)) = (0,2,0,0,0,0,1) \\
+\\
+La frecuencia inversa de documento, idf_{i}, trata de reflejar la
+importancia del término clave k_i dentro de la colección.\\
+idf_i = log_2\left( \frac{N}{n_i} \right) \\
+idf_1 = idf_3 = idf_5 = idf_6 = idf_7 = log_2\left( \frac{3}{1}
+\right) = 1.5849 \\
+idf_2 = log_2\left( \frac{3}{3} \right) = 0 \\
+idf_4 = log_2\left( \frac{3}{2} \right) = 0.5849 \\
+\\
+Por último, para calcular los pesos se sigue la fórmula:\\
+w_{ij} = tf_{ij} \cdot idf_i\\
+Por tanto:\\
+\begin{array}{lll}
+w_{11} = 1 \cdot 1.5849 = 1.5849 & w_{12} = 0 \cdot 1.5849 = 0 & w_{13} = 0 \cdot 1.5849 = 0 \\
+w_{21} = 1 \cdot 0 = 0 & w_{22} = 1 \cdot 0 = 0 & w_{23} = 2 \cdot 0 = 0 \\
+w_{31} = 1 \cdot 1.5849 = 1.5849 & w_{32} = 0 \cdot 1.5849 = 0 & w_{33} = 0 \cdot 1.5849 = 0 \\
+w_{41} = 1 \cdot 0.5849 = 0.5849 & w_{42} = 1 \cdot 0.5849 = 0.5849 & w_{43} = 0 \cdot 0.5849 = 0 \\
+w_{51} = 0 \cdot 1.5849 = 0 & w_{52} = 1 \cdot 1.5849 = 1.5849 & w_{53} = 0 \cdot 1.5849 = 0 \\
+w_{61} = 0 \cdot 1.5849 = 0 & w_{62}= 1 \cdot 1.5849 = 1.5849 & w_{63} = 0 \cdot 1.5849 = 0 \\
+w_{71} = 0 \cdot 1.5849 = 0 & w_{72} = 0 \cdot 1.5849 = 0 & w_{73} = 1 \cdot 1.5849 = 1.5849 \\
+\end{array}
+Con lo que queda:\\
+\begin{array}{ll}
+Vd_1 = (1.5849,0,1.5849,0.5849,0,0,0) & |Vd_1| = 2.3164 \\
+Vd_2 = (0,0,0,0.5849,1.5849,1.5849,0) & |Vd_2| = 2.3164 \\
+Vd_3 = (0,0,0,0,0,0,1.5849) & |Vd_3| = 1.5849\\ 
+\end{array}
+*** Consultas
+La frecuencia, f_{ik}, es el número de apariciones del término clave k_i en las
+consultas q_k. Expreso F_{q_k} = (f_{1k},...,f_{7k}).\\
+F_{q_1} = (1,1,0,0,0,0,0) \hspace{2 mm} F_{q_2} = (0,1,0,0,1,0,0)
+\hspace{2 mm} F_{q_3} = (0,0,0,1,1,0,0)\\
+\\
+La frecuencia de término clave, tf_{ik}, de un término clave k_i en
+una consulta q_k (sigue la fórmula igual que los documentos). Expreso
+tF_{q_k} = (tf_{1k},...,tf_{7k}). \\ 
+tF_{q_1} = (1+0,1+0,0,0,0,0,0) = (1,1,0,0,0,0,0)\\
+tF_{q_2} = (0,1+0,0,0,1+0,0,0) = (0,1,0,0,1,0,0)\\
+tF_{q_3} = (0,0,0,1+0,1+0,0,0) = (0,0,0,1,1,0,0)\\
+\\
+Ahora, recordando los valores obtenidos en el apartado anterior:\\
+idf_1 = idf_3 = idf_5 = idf_6 = idf_7 = 1.5849, \hspace{2 mm} idf_2 = 0, \hspace{2 mm} idf_4 = 0.5849 \\
+
+Podemos obtener los pesos de los términos en las consultas:\\
+\begin{array}{lll}
+w_{11} = 1 \cdot 1.5849 = 1.5849 & w_{12} = 0 \cdot 1.5849 = 0 & w_{13} = 0 \cdot 1.5849 = 0 \\
+w_{21} = 1 \cdot 0 = 0 & w_{22} = 1 \cdot 0 = 0 & w_{23} = 0 \cdot 0 = 0\\
+w_{31} = 0 \cdot 1.5849 = 0 & w_{32} = 0 \cdot 1.5849 = 0 & w_{33} = 0 \cdot 1.5849 = 0 \\
+w_{41} = 0 \cdot 0.5849 = 0 & w_{42} = 0 \cdot 0.5849 = 0 & w_{43} = 1 \cdot 0.5849 = 0.5849 \\
+w_{51} = 0 \cdot 1.5849 = 0 & w_{52} = 1 \cdot 1.5849 = 1.5849 & w_{53} = 1 \cdot 1.5849 = 1.5849 \\
+w_{61} = 0 \cdot 1.5849 = 0 & w_{62} = 0 \cdot 1.5849 = 0 & w_{63} = 0 \cdot 1.5849 = 0 \\
+w_{71} = 0 \cdot 1.5849 = 0 & w_{72} = 0 \cdot 1.5849 = 0 & w_{73} = 0 \cdot 1.5849 = 0 \\
+\end{array}
+\\
+Con lo que queda:\\
+\begin{array}{ll}
+Vq_1 = (1.5849, 0, 0, 0, 0, 0, 0) & |Vq_1| = 1.5849\\
+Vq_2 = (0, 0, 0, 0, 1.5849, 0, 0) & |Vq_2| = 1.5849\\
+Vq_3 = (0, 0, 0, 0.5849, 1.5849, 0, 0) & |Vq_3| = 1.6893\\
+\end{array}
+** Calcula R(Vd_j,Vq_k) para j \in [1..3], k \in [1..2]
+Para calcular la similitud de la consulta q_k con el documento d_j,
+utilizaremos el ángulo que forman los vectores Vq_k y Vd_j fijandonos
+concretamente en el coseno del ángulo.\\
+$$ R(Vd_j,Vq_k) = cos(\theta) =  \frac{Vd_j \bullet Vq_k}{|Vd_j|\cdot|Vq_k|} $$
+\\
+Donde \bullet significa producto escalar.\\
+\\
+R(Vd_1,Vq_1) = \left( \frac{Vd_1 \bullet Vq_1}{2.3164\cdot1.5849} \right) =
+\frac{2.5119}{3.6712} = 0.6842\\
+R(Vd_2,Vq_1) = \left( \frac{Vd_2 \bullet Vq_1}{2.3164\cdot1.5849} \right) =
+\frac{0}{3.6712} = 0 \\
+R(Vd_3,Vq_1) = \left( \frac{Vd_3 \bullet Vq_1}{1.5849\cdot1.5849} \right) =
+\frac{0}{2.5119} = 0\\
+\\
+R(Vd_1,Vq_2) = \left( \frac{Vd_1 \bullet Vq_2}{2.3164\cdot1.5849} \right) =
+\frac{0}{3.6712} = 0\\
+R(Vd_2,Vq_2) = \left( \frac{Vd_2 \bullet Vq_2}{2.3164\cdot1.5849} \right) =
+\frac{2.5119}{3.6712} = 0.6842\\
+R(Vd_3,Vq_2) = \left( \frac{Vd_3 \bullet Vq_2}{1.5849\cdot1.5849} \right) =
+\frac{0}{2.5119} = 0\\
+\\
+R(Vd_1,Vq_3) = \left( \frac{Vd_1 \bullet Vq_3}{2.3164\cdot1.6893} \right) =
+\frac{0.3421}{3.9130} = 0.0874\\
+R(Vd_2,Vq_3) = \left( \frac{Vd_2 \bullet Vq_3}{2.3164\cdot1.6893} \right) =
+\frac{2.854}{3.9130} = 0.7293\\
+R(Vd_3,Vq_3) = \left( \frac{Vd_3 \bullet Vq_3}{1.5849\cdot1.6893} \right) =
+\frac{0}{2.6773} = 0\\ 
+
+Por este resultado, se deduce que para la consulta q_1 el mejor
+documento es d_1, y para las consultas q_2 y q_3 el mejor documento
+es el d_2.
+
+
