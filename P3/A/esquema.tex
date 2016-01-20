@@ -178,6 +178,27 @@ Donde un comentario viene definido por la siguiente estructura:
 \end{tabular}
 \end{table}
 
+Como se puede observar en la tabla anterior, se ha decidido incluir una
+referencia al alias del usuario que ha realizado la respuesta (identificador
+único del usuario). Además, se considera crear un índice sobre este campo,
+para que así, acceder a todas las respuestas de un usuario solo involucre
+una búsqueda sobre ese campo, sin necesidad de realizar consultas a otras
+colecciones. 
+Aunque los votos se encuentren en una colección distinta,se ha decidido que
+cada respuesta posea una cuenta de votos positivos y negativos que ha
+recibido. De esta manera, acceder a una respuesta y consultar el número de
+votos se realiza de manera inmediata.
+Para guardar los comentarios se ha decidido anidar en un array de
+comentarios por cada pregunta. Esta decisión ha sido tomada principalmente
+por dos motivos: (a) Nunca se va a acceder a un comentario directamente,
+sino que se realizará a través de la respuesta. De esta manera, acceder a
+los comentarios de una respuesta consiste en acceder a la propia
+respuesta. (b) Se ha supuesto que los comentarios de una respuesta van a
+ser pocos y pequeños (similar a StackOverflow), por lo que no supondrá una
+disminución de la eficiencia.
+
+\todo{comentar por qué está el id de las preguntas}
+
 \begin{figure}[H]
   \centering
 \begin{lstlisting}
