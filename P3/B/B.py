@@ -218,7 +218,7 @@ def get_entries_by_user(alias):
 # fecha. Este listado debe contener el tıtulo de la pregunta original 
 # cuya respuesta se puntuo.
 def get_scores(alias):
-
+    # TODO: Comprobar que este sort haga lo que debe de hacer
     votos = db.votos.find({"alias":alias},{"_id":0}).sort("fecha_creacion")
     
     return json_util.dumps({"scores": votos})
