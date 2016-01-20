@@ -41,11 +41,12 @@
 
 \textbf{Descripción del esquema implícito escogido:}\\
 Para el diseño de la base de datos del sitio de preguntas propuesto en la
-práctica, se ha considerado la creación de 4 colecciones para almacenar los
+práctica se ha considerado la creación de 4 colecciones para almacenar los
 usuarios, las preguntas, las contestaciones y comentarios, y las
-puntuaciones respectivamente.
+puntuaciones respectivamente. 
+
 A continuación se muestra el esquema de cada una de las colecciones
-utilizadas, y las razones que se han considerado para su diseño:\\
+utilizadas y las razones que se han considerado para su diseño:\\
 
 \textbf{Usuarios:}\\
 
@@ -67,7 +68,7 @@ utilizadas, y las razones que se han considerado para su diseño:\\
 \end{table}
 
 
-De este diseña destacar que la dirección se encuentra un objeto JSON
+De este diseño destacar que la dirección se encuentra un objeto JSON
 anidado en la tabla, en vez de referenciado ya que este posee poco tamaño y
 no va a sufrir muchos cambios. Asimismo, se ha decidido no tener
 referencias desde un usuario a las preguntas, respuestas, comentarios o
@@ -199,7 +200,7 @@ respuesta. (b) Se ha supuesto que los comentarios de una respuesta van a
 ser pocos y pequeños (similar a StackOverflow), por lo que no supondrá una
 disminución de la eficiencia.
 
-En esta colección también se ha decidido incorporar una regerencia al id de
+En esta colección también se ha decidido incorporar una referencia al id de
 la pregunta padre. Aunque este campo no es necesario para trabajar con las
 respuestas, es de mucha utilidad cuando se inserta un nuevo voto, ya que
 permite acceder al título de la pregunta original y almacenarlo con el
@@ -245,8 +246,21 @@ negativo sería:
 \end{tabular}
 \end{table}
 
+Para almacenar las votaciones se ha decidido utilizar una colección que
+solo almacene estas, ya que los usuarios van a generar un gran número de
+estas, su número es ilimitado, y además pueden sufrir cambios. Junto con la
+votación (representada por un número entero), se almacena el id de la
+respuesta a la que corresponde la votación, el alias del usuario que la ha
+realizado (identificador único del usuario), y el título de la pregunta
+original.
 
+El alias del usuario posee un índice sobre su campo para así agilizar las
+consultas de obtener todas las votaciones de un único usuario. Como el
+título de una pregunta no se va a modificar, y para agilizar las consultas
+sobre votaciones, se ha decidido guardar una copia en esta colección,
+evitando así tener que consultar otras colecciones para obtener los datos.
 
+Un ejemplo de documento en esta colección es el siguiente:
 
 \begin{figure}[H]
   \centering
@@ -260,37 +274,6 @@ negativo sería:
 }
 \end{lstlisting}
 \end{figure}
-
-
-
-\vspace{2cm}
-\hrule
-\begin{center}\textcolor{red}{DESDE AQUI ES TODO VIEJO}\end{center}
-\hrule
-\vspace{2cm}
-
-Las consideraciones que se han tomado para realizar este esquema han sido:\\
-
--- Separar preguntas de comentarios y respuestas ya que los comentarios no
-tienen un numero acotado, y ademas al contener multimedia van a ser
-grandes. (más cosas??)\\
--- La pregunta referencia a las contestaciones para que así se pueda saber
-el número de contestaciones sin necesidad de consulatar la coleccion.\\
--- Se ha decidido separar la información de puntuaciones a otra tabla
-porque se prevee que va a haber muchas escrituras y lecturas de
-estas. Además, esto permite obtener todas las puntutaciones de un usuario
-de manera sencilla.\\
--- Aunque las valoraciones están en una coleccion independiente, los
-documentos de respuestas lelvan un contador de votos positivos y negativos
-para mostrar esa información al consultar una respuesta.\\
--- Los comentarios se encuentran anidados a las respuestas para no tener
-que añadir un campo más referenciando a la contestación que comentan, y
-además conseguir que la coleccion almacene un único tipo de documento.\\
--- Las preguntas tienen referencias a las respuestas, pero no el texto
-duplicado, ya que aunque se pierda velocidad en el acceso, como los
-comentarios no son acotados y pueden tener multimedia se perdería muchos
-datos al duplicarlo.\\
--- Mas cosas que he pensado (y mucho) pero ahora no me vienen a la cabeza\\
 
 
 \end{document}
