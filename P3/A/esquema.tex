@@ -184,10 +184,12 @@ referencia al alias del usuario que ha realizado la respuesta (identificador
 para que así, acceder a todas las respuestas de un usuario solo involucre
 una búsqueda sobre ese campo, sin necesidad de realizar consultas a otras
 colecciones. 
-Aunque los votos se encuentren en una colección distinta,se ha decidido que
+
+Aunque los votos se encuentren en una colección distinta, se ha decidido que
 cada respuesta posea una cuenta de votos positivos y negativos que ha
 recibido. De esta manera, acceder a una respuesta y consultar el número de
 votos se realiza de manera inmediata.
+
 Para guardar los comentarios se ha decidido anidar en un array de
 comentarios por cada pregunta. Esta decisión ha sido tomada principalmente
 por dos motivos: (a) Nunca se va a acceder a un comentario directamente,
@@ -197,7 +199,14 @@ respuesta. (b) Se ha supuesto que los comentarios de una respuesta van a
 ser pocos y pequeños (similar a StackOverflow), por lo que no supondrá una
 disminución de la eficiencia.
 
-\todo{comentar por qué está el id de las preguntas}
+En esta colección también se ha decidido incorporar una regerencia al id de
+la pregunta padre. Aunque este campo no es necesario para trabajar con las
+respuestas, es de mucha utilidad cuando se inserta un nuevo voto, ya que
+permite acceder al título de la pregunta original y almacenarlo con el
+nuevo voto, para así agilizar las consultas posteriores a los votos.
+
+Un documento que representa una respuesta con un comentario y un voto
+negativo sería:
 
 \begin{figure}[H]
   \centering
@@ -235,6 +244,7 @@ disminución de la eficiencia.
     \bottomrule
 \end{tabular}
 \end{table}
+
 
 
 
