@@ -7,7 +7,7 @@ Este código es fruto ÚNICAMENTE del trabajo de sus miembros. Declaramos no
 haber colaborado de ninguna manera con otros grupos, haber compartido el ćodigo 
 con otros ni haberlo obtenido de una fuente externa.
 """
-
+import pymongo
 from pymongo import MongoClient
 from datetime import datetime
 from bson import json_util
@@ -20,7 +20,7 @@ import json
 
 #TODO: control de errores en los accesos a la base de datos.
 #TODO: cuando se devuelva un array, convertirlo a JSON
-#TODO: quizás al hacer los updates hayq eu modifcar la fecha.
+#TODO: quizás al hacer los updates hay que modifcar la fecha.
 
 # 1. Añadir un usuario
 def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
@@ -48,10 +48,8 @@ def update_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
 # 3. Añadir una pregunta
 def add_question(titulo, alias, texto, tags, fecha=None):
 
-    # 1.- Insertamos la pregunta y guardamos su id
     question = createQuestion(titulo, alias, texto, tags, fecha)
     id = db.preguntas.insert_one(question).inserted_id
-
     
     return json_util.dumps({"inserted_id": id})
 
@@ -74,7 +72,6 @@ def add_answer(pregunta_id, alias, texto, fecha=None):
 # 5. Comentar una respuesta.
 def add_comment(respuesta_id, alias, texto, fecha=None):
     comment = createComment(alias, texto, fecha=None)
-
     id = db.respuestas.update_one({"_id":respuesta_id},
                                   {"$push": { "comentarios" : comment}})
 
@@ -208,7 +205,7 @@ def get_entries_by_user(alias):
     #1.- Conseguir las preguntas
     ret["preguntas"] = db.preguntas.find({"alias": alias})
     
-    #3.- Conseguir las respuestas
+    #2.- Conseguir las respuestas
     ret["respuestas"] = db.respuestas.find({"alias": alias})
     
     return json_util.dumps(ret)
@@ -219,19 +216,14 @@ def get_entries_by_user(alias):
 # cuya respuesta se puntuo.
 def get_scores(alias):
     # TODO: Comprobar que este sort haga lo que debe de hacer
-    votos = db.votos.find({"alias":alias},{"_id":0}).sort("fecha_creacion")
+    votos = db.votos.find({"alias":alias},{"_id":0}).sort("fecha_creacion",pymongo.DESCENDING)
     
     return json_util.dumps({"scores": votos})
 
 
 # 13. Ver todos los datos de un usuario.
 def get_user(alias):
-    #TODO: cambiar de acuerdo al diseño final de la bd
-    filtro = {"_id": 0,
-              "preguntas": 0,
-              "respuestas": 0
-          }
-    user = db.usuarios.find_one({"alias":alias}, filtro)
+    user = db.usuarios.find_one({"alias":alias}, {"_id": 0})
     
     return json_util.dumps(user)
 
@@ -443,4 +435,4 @@ if __name__ == '__main__' :
     #print update_score(ObjectId("569e20e11204b70e4eb8bf09"))
     # print get_scores("alias")
 
-    print delete_question(ObjectId("569d3a341204b70e9ce41037"))
+    #print delete_question(ObjectId("569d3a341204b70e9ce41037"))
