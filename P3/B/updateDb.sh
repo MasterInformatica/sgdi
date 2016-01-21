@@ -9,3 +9,5 @@ mongoimport -d $BD -c preguntas --file preguntas.json
 mongoimport -d $BD -c respuestas --file respuestas.json
 mongoimport -d $BD -c usuarios --file usuarios.json
 mongoimport -d $BD -c votos --file votos.json
+
+mongo $BD --eval "db.usuarios.ensureIndex({alias:1},{unique:true});"

@@ -18,19 +18,19 @@ import json
 ## Es necesario añadir los parámetros adecuados a cada función ##
 #################################################################
 
-#TODO: control de errores en los accesos a la base de datos.
 #TODO: cuando se devuelva un array, convertirlo a JSON
-#TODO: quizás al hacer los updates hay que modifcar la fecha.
-
+#TODO: exists*(id) -> ver que devuelve find() si no existe
 # 1. Añadir un usuario
 def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
                 experiencia ):
 
     user = createUser(alias, nombre, apellidos, calle, numero, ciudad, pais, experiencia) 
-    ret = db.usuarios.insert_one(user)
-
-    return json_util.dumps({"inserted_id":ret.inserted_id})
-
+    try:
+        ret = db.usuarios.insert_one(user)
+        return json_util.dumps({"inserted_id":ret.inserted_id})
+    except Exception as e:
+        return json_util.dumps({"error":str(e)})
+ 
 
 # 2. Actualizar un usuario
 def update_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
@@ -38,44 +38,61 @@ def update_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
 
     user = createUser(alias, nombre, apellidos, calle, numero, ciudad,
                       pais, experiencia, fecha)
-
-    ret = db.usuarios.update_one({"alias": alias}, {"$set":user})
-
-    return json_util.dumps({"modified_count": ret.modified_count})
-
+    try:
+        ret = db.usuarios.update_one({"alias": alias}, {"$set":user})
+        return json_util.dumps({"modified_count": ret.modified_count})
+    except Exception as e:
+        return json_util.dumps({"error":str(e)})
 
 
 # 3. Añadir una pregunta
 def add_question(titulo, alias, texto, tags, fecha=None):
 
     question = createQuestion(titulo, alias, texto, tags, fecha)
-    id = db.preguntas.insert_one(question).inserted_id
-    
-    return json_util.dumps({"inserted_id": id})
-
+    try:
+        if existsUser(alias):
+            id = db.preguntas.insert_one(question).inserted_id
+            return json_util.dumps({"inserted_id": id})
+        else:
+            return json_util.dumps({"error": "User does not exists"})
+    except Exception as e:
+        return json_util.dumps({"error":str(e)})
 
 
 # 4. Añadir una respuesta a una pregunta.
 def add_answer(pregunta_id, alias, texto, fecha=None):
-    #1.- Insertamos la respuesta y guardamos su id
-    answer = createAnswer(pregunta_id, alias, texto, fecha)
-    id = db.respuestas.insert_one(answer).inserted_id
-    
-    #2.- Guardamos la referencia en la pregunta para poder acceder despues
-    db.preguntas.update_one({"_id": pregunta_id},
-                            {"$push" : {"respuestas": id} })
+    try:
 
-    return json_util.dumps({"inserted_id": id})
-    
+        if existsPregunta(pregunta_id):
+            #1.- Insertamos la respuesta y guardamos su id
+            answer = createAnswer(pregunta_id, alias, texto, fecha)
 
+            id = db.respuestas.insert_one(answer).inserted_id
+            #2.- Guardamos la referencia en la pregunta para poder acceder despues
+            db.preguntas.update_one({"_id": pregunta_id},
+                                    {"$push" : {"respuestas": id} })
+            return json_util.dumps({"inserted_id": id})
+        else:
+            return json_util.dumps({"error": "Question does not exists"})
+
+    except Exception as e:
+        return json_util.dumps({"error":str(e)})
 
 # 5. Comentar una respuesta.
 def add_comment(respuesta_id, alias, texto, fecha=None):
     comment = createComment(alias, texto, fecha=None)
-    id = db.respuestas.update_one({"_id":respuesta_id},
-                                  {"$push": { "comentarios" : comment}})
+    try:
+        if existsAnswer(respuesta_id):
+            id = db.respuestas.update_one({"_id":respuesta_id},
+                                          {"$push": { "comentarios" : comment}})
 
-    return json_util.dumps({"modified_count": id.modified_count})
+            return json_util.dumps({"modified_count": id.modified_count})
+        else:
+            return json_util.dumps({"error": "Answer does not exists"})
+
+    except Exception as e:
+        return json_util.dumps({"error":str(e)})
+
 
 
 # 6. Puntuar una respuesta.
@@ -89,10 +106,16 @@ def score_answer(respuesta_id, voto, alias):
     else:
         campo_modificar = "votos_neg"
     
-        
-    preg_id = db.respuestas.find_one_and_update(
-        {"_id":respuesta_id}, {"$inc": {campo_modificar : 1}},
-        {"_id":0, "pregunta_id":1})
+    try: 
+        if existsAnswer(respuesta_id):
+            preg_id = db.respuestas.find_one_and_update(
+                {"_id":respuesta_id}, {"$inc": {campo_modificar : 1}},
+                {"_id":0, "pregunta_id":1})
+        else:
+            return json_util.dumps({"error": "Answer does not exists"})
+
+    except Exception as e:
+        return json_util.dumps({"error":str(e)})
 
     preg_id=preg_id["pregunta_id"]
     
@@ -103,9 +126,13 @@ def score_answer(respuesta_id, voto, alias):
 
     #3.- Insertamos el voto en su colección
     score = createScore(respuesta_id, voto, alias, titulo)
-    id = db.votos.insert_one(score).inserted_id
+    try:
+        id = db.votos.insert_one(score).inserted_id
 
-    return json_util.dumps({"inserted_id": id})
+        return json_util.dumps({"inserted_id": id})
+    except Exception as e:
+        return json_util.dumps({"error":str(e)})
+
 
 
 # 7. Modificar una puntuacion de buena a mala o viceversa.
@@ -113,23 +140,26 @@ def update_score(voto_id):
     """ Modificamos la puntuacion multiplicando por -1. Cogemos la anterior para
     saber como modificar la colección de respuestas
     """
-    ret1 = db.votos.find_one_and_update(
-        {"_id": voto_id}, {"$mul" : { "voto" : -1 }},
-        {"_id":0, "respuesta_id": 1, "voto":1})
+    try:
+        ret1 = db.votos.find_one_and_update(
+            {"_id": voto_id}, {"$mul" : { "voto" : -1 }},
+            {"_id":0, "respuesta_id": 1, "voto":1})
 
-    #por defecto, devuelve el valor que había antes de actualizar
-    if ret1["voto"] > 0 :
-        inc = "votos_neg"
-        dec = "votos_pos"
-    else:
-        inc = "votos_pos"
-        dec = "votos_neg"
+        #por defecto, devuelve el valor que había antes de actualizar
+        if ret1["voto"] > 0 :
+            inc = "votos_neg"
+            dec = "votos_pos"
+        else:
+            inc = "votos_pos"
+            dec = "votos_neg"
 
-    ret2 = db.respuestas.update_one({"_id": ret1["respuesta_id"]},
-                                {"$inc": {inc : 1, dec : -1}})
+        ret2 = db.respuestas.update_one({"_id": ret1["respuesta_id"]},
+                                        {"$inc": {inc : 1, dec : -1}})
 
 
-    return json_util.dumps({"modified_count" : ret2.modified_count})
+        return json_util.dumps({"modified_count" : ret2.modified_count})
+    except Exception as e:
+        return json_util.dumps({"error":str(e)})
 
 
 # 8. Borrar una pregunta junto con todas sus respuestas, comentarios y 
@@ -228,7 +258,6 @@ def get_user(alias):
     return json_util.dumps(user)
 
 
-
 # 14. Obtener los alias de los usuarios expertos en un determinado tema.
 def get_uses_by_expertise(topic):
     
@@ -284,13 +313,34 @@ def get_questions_by_tag(n, topic):
     questions = db.preguntas.aggregate(pipeline)
 
     return json_util.dumps(questions)
-        
-            
-
-    
     
 ################################################################################
-############################  FUNCIONES AUXILIARES  ############################
+################  FUNCIONES AUXILIARES CON CONEXION ############################
+################################################################################
+
+def existsUser(alias):
+    try:
+        ret = db.usuarios.find_one({"alias":alias})
+    except Exception as e:
+        return false
+
+
+
+def existsPregunta(id):
+    try:
+        ret = db.preguntas.find_one({"_id":id})
+    except Exception as e:
+        return false
+
+def existsPregunta(id):
+    try:
+        ret = db.usuarios.find_one({"_id":id})
+    except Exception as e:
+        return false
+
+
+################################################################################
+################ FUNCIONES AUXILIARES  SIN CONEXION ############################
 ################################################################################
 
 
@@ -379,10 +429,9 @@ def createScore(respuesta_id, voto, alias, titulo, fecha = None):
             "titulo": titulo,
             "fecha_creacion": fecha
     }
+
+
         
-
-
-
 
 if __name__ == '__main__' : 
 
@@ -392,9 +441,9 @@ if __name__ == '__main__' :
 
 
     # usuarios
-    # print insert_user("ShW", "Sherlock", "Holmes", 
-    #                   "Baker Street", "221B", "London", "England", 
-    #                   ["SQL", "Tor", "recovering"])
+    # print insert_user("ShW7", "Sherlock", "Holmes", 
+    #                  "Baker Street", "221B", "London", "England", 
+    #                  ["SQL", "Tor", "recovering"])
     # print insert_user("Poison", "Hercules", "Poirot", 
     #                   "Le grand place", "3", "Bruxeles", "Belgium", 
     #                   ["Poison", "SQL", "murders"])
@@ -402,7 +451,7 @@ if __name__ == '__main__' :
     #                   "v", "n", "c", "p", 
     #                   ["asd", "bl"])
     
-    # print update_user("alias", "a", "a", "a", "a", "a", "a", [])
+    # print update_user("1alias", "a", "a", "a", "a", "a", "a", [])
     
     # print get_user("ShW")
     # print get_uses_by_expertise("SQL")
@@ -430,7 +479,7 @@ if __name__ == '__main__' :
     # print get_questions_by_tag(2, ["sql"])
 
 
-    #print score_answer(ObjectId("569d3f9e1204b712cd7d58d7"), -1, "alias")
+    print score_answer(ObjectId("569d3f9e12044b712cd7d58d7"), -1, "alias")
 
     #print update_score(ObjectId("569e20e11204b70e4eb8bf09"))
     # print get_scores("alias")
