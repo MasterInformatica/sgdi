@@ -64,7 +64,7 @@ def preg1():
 # 2. Actualizar un usuario
 def preg2():
     print "Pregunta 2: Actualizar un usuario"
-    print update_user("alias", "a", "a", "a", "a", "a", "a", [])
+    print update_user("lc", "a", "a", "a", "a", "a", "a", [])
     print "¿Y si NO existe?"
     print update_user("1alias", "a", "a", "a", "a", "a", "a", [])
 
