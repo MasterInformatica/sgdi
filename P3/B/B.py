@@ -18,8 +18,9 @@ import json
 ## Es necesario añadir los parámetros adecuados a cada función ##
 #################################################################
 
-#TODO: cuando se devuelva un array, convertirlo a JSON
-#TODO: exists*(id) -> ver que devuelve find() si no existe
+client = MongoClient('localhost',27017)
+db = client['sgdi_grupo04']
+
 # 1. Añadir un usuario
 def insert_user(alias, nombre, apellidos, calle, numero, ciudad, pais,
                 experiencia ):
@@ -62,18 +63,20 @@ def add_question(titulo, alias, texto, tags, fecha=None):
 # 4. Añadir una respuesta a una pregunta.
 def add_answer(pregunta_id, alias, texto, fecha=None):
     try:
+        if existsUser(alias):
+            if existsPregunta(pregunta_id):
+                #1.- Insertamos la respuesta y guardamos su id
+                answer = createAnswer(pregunta_id, alias, texto, fecha)
 
-        if existsPregunta(pregunta_id):
-            #1.- Insertamos la respuesta y guardamos su id
-            answer = createAnswer(pregunta_id, alias, texto, fecha)
-
-            id = db.respuestas.insert_one(answer).inserted_id
-            #2.- Guardamos la referencia en la pregunta para poder acceder despues
-            db.preguntas.update_one({"_id": pregunta_id},
-                                    {"$push" : {"respuestas": id} })
-            return json_util.dumps({"inserted_id": id})
+                id = db.respuestas.insert_one(answer).inserted_id
+                #2.- Guardamos la referencia en la pregunta para poder acceder despues
+                db.preguntas.update_one({"_id": pregunta_id},
+                                        {"$push" : {"respuestas": id} })
+                return json_util.dumps({"inserted_id": id})
+            else:
+                return json_util.dumps({"error": "Question does not exists"})
         else:
-            return json_util.dumps({"error": "Question does not exists"})
+            return json_util.dumps({"error": "User does not exists"})
 
     except Exception as e:
         return json_util.dumps({"error":str(e)})
@@ -82,17 +85,19 @@ def add_answer(pregunta_id, alias, texto, fecha=None):
 def add_comment(respuesta_id, alias, texto, fecha=None):
     comment = createComment(alias, texto, fecha=None)
     try:
-        if existsAnswer(respuesta_id):
-            id = db.respuestas.update_one({"_id":respuesta_id},
-                                          {"$push": { "comentarios" : comment}})
+        if existsUser(alias):
+            if existsAnswer(respuesta_id):
+                id = db.respuestas.update_one({"_id":respuesta_id},
+                                              {"$push": { "comentarios" : comment}})
 
-            return json_util.dumps({"modified_count": id.modified_count})
+                return json_util.dumps({"modified_count": id.modified_count})
+            else:
+                return json_util.dumps({"error": "Answer does not exists"})
         else:
-            return json_util.dumps({"error": "Answer does not exists"})
+            return json_util.dumps({"error": "User does not exists"})
 
     except Exception as e:
         return json_util.dumps({"error":str(e)})
-
 
 
 # 6. Puntuar una respuesta.
@@ -107,13 +112,15 @@ def score_answer(respuesta_id, voto, alias):
         campo_modificar = "votos_neg"
     
     try: 
-        if existsAnswer(respuesta_id):
-            preg_id = db.respuestas.find_one_and_update(
-                {"_id":respuesta_id}, {"$inc": {campo_modificar : 1}},
-                {"_id":0, "pregunta_id":1})
+        if existsUser(alias):
+            if existsAnswer(respuesta_id):
+                preg_id = db.respuestas.find_one_and_update(
+                    {"_id":respuesta_id}, {"$inc": {campo_modificar : 1}},
+                    {"_id":0, "pregunta_id":1})
+            else:
+                return json_util.dumps({"error": "Answer does not exists"})
         else:
-            return json_util.dumps({"error": "Answer does not exists"})
-
+            return json_util.dumps({"error": "User does not exists"})
     except Exception as e:
         return json_util.dumps({"error":str(e)})
 
@@ -145,6 +152,8 @@ def update_score(voto_id):
             {"_id": voto_id}, {"$mul" : { "voto" : -1 }},
             {"_id":0, "respuesta_id": 1, "voto":1})
 
+        if ret1 is None:
+            return json_util.dumps({"modified_count" : 0})
         #por defecto, devuelve el valor que había antes de actualizar
         if ret1["voto"] > 0 :
             inc = "votos_neg"
@@ -168,10 +177,20 @@ def delete_question(pregunta_id):
     #1.- Borramos la pregunta, y nos quedamos con el array de respuestas.
     resp = db.preguntas.find_one_and_delete({"_id":pregunta_id},
                                             {"_id": 0, "respuestas":1})
+    if resp is None:
+        return json_util.dumps({
+            "deleted_questions":0,
+            "deleted_answers": 0,
+            "deleted_scores": 0
+        })
     resp = resp["respuestas"]
     
     if(len(resp) == 0):
-        return json_util.dumps({"status": "ok"})
+        return json_util.dumps({
+            "deleted_questions":1,
+            "deleted_answers": 0,
+            "deleted_scores": 0
+        })
     
     #2.- Con ese array, borramos todas las respuestas
     respDel = db.respuestas.delete_many({"_id": {"$in": resp}}).deleted_count
@@ -179,8 +198,11 @@ def delete_question(pregunta_id):
     #3.- Con ese array, borramos todos los votos
     votDel = db.votos.delete_many({"respuesta_id" : {"$in":resp}}).deleted_count
     
-    return json_util.dumps({"deleted_answers": respDel,
-                            "deleted_scores": votDel})
+    return json_util.dumps({
+        "deleted_questions":1,
+        "deleted_answers": respDel,
+        "deleted_scores": votDel
+    })
 
 
 # 9. Visualizar una determinada pregunta junto con todas sus contestaciones
@@ -189,7 +211,8 @@ def delete_question(pregunta_id):
 def get_question(pregunta_id):
     #1.- Conseguir la pregunta
     question = db.preguntas.find_one({"_id": pregunta_id})
-
+    if question is None:
+        return json_util.dumps({"error":"Question does not exists"})
     #2.- Conseguir todos las contestaciones y comentarios
     answers = db.respuestas.find({"_id": { "$in": question["respuestas"]}},
                                  {"pregunta_id": 0 })
@@ -221,7 +244,7 @@ def get_question_by_tag(tags):
          
     questions = db.preguntas.aggregate(pipeline)
 
-    return json_util.dumps(questions)
+    return json_util.dumps({"questions":questions})
 
 
 # 11. Ver todas las preguntas o respuestas generadas por un determinado usuario.
@@ -230,6 +253,8 @@ def get_entries_by_user(alias):
     de poner un índice sobre el campo "alias" tanto de la colección de
     preguntas como de respuestas
     """
+    if not existsUser(alias):
+        return json_util.dumps({"error": "User does not exists"})
 
     ret = {"preguntas": [], "respuestas": [] }
     #1.- Conseguir las preguntas
@@ -245,7 +270,9 @@ def get_entries_by_user(alias):
 # fecha. Este listado debe contener el tıtulo de la pregunta original 
 # cuya respuesta se puntuo.
 def get_scores(alias):
-    # TODO: Comprobar que este sort haga lo que debe de hacer
+    if not existsUser(alias):
+        return json_util.dumps({"error": "User does not exists"})
+
     votos = db.votos.find({"alias":alias},{"_id":0}).sort("fecha_creacion",pymongo.DESCENDING)
     
     return json_util.dumps({"scores": votos})
@@ -254,7 +281,8 @@ def get_scores(alias):
 # 13. Ver todos los datos de un usuario.
 def get_user(alias):
     user = db.usuarios.find_one({"alias":alias}, {"_id": 0})
-    
+    if user is None:
+        return json_util.dumps({"error": "User does not exists"})
     return json_util.dumps(user)
 
 
@@ -262,7 +290,7 @@ def get_user(alias):
 def get_uses_by_expertise(topic):
     
     alias = db.usuarios.find({"experiencia":topic},  {"alias": 1, "_id": 0})
-    return json_util.dumps(alias)
+    return json_util.dumps({"usuarios":alias})
 
 
 # 15. Visualizar las n preguntas mas actuales ordenadas por fecha, incluyendo
@@ -286,7 +314,7 @@ def get_newest_questions(n):
 
     questions = db.preguntas.aggregate(pipeline)
 
-    return json_util.dumps(questions)
+    return json_util.dumps({"questions":questions})
 
 
 # 16. Ver n preguntas sobre un determinado tema, ordenadas de mayor a menor por
@@ -312,7 +340,7 @@ def get_questions_by_tag(n, topic):
 
     questions = db.preguntas.aggregate(pipeline)
 
-    return json_util.dumps(questions)
+    return json_util.dumps({"questions":questions})
     
 ################################################################################
 ################  FUNCIONES AUXILIARES CON CONEXION ############################
@@ -320,27 +348,30 @@ def get_questions_by_tag(n, topic):
 
 def existsUser(alias):
     try:
-        ret = db.usuarios.find_one({"alias":alias})
+        ret = db.usuarios.find_one({"alias":alias},{"alias":1})
+        return not (ret is None)
     except Exception as e:
-        return false
+        return False
 
 
 
 def existsPregunta(id):
     try:
-        ret = db.preguntas.find_one({"_id":id})
+        ret = db.preguntas.find_one({"_id":id},{"_id":1})
+        return not (ret is None)
     except Exception as e:
-        return false
+        return False
 
-def existsPregunta(id):
+def existsAnswer(id):
     try:
-        ret = db.usuarios.find_one({"_id":id})
+        ret = db.respuestas.find_one({"_id":id},{"_id":1})
+        return not (ret is None)
     except Exception as e:
-        return false
+        return False
 
 
 ################################################################################
-################ FUNCIONES AUXILIARES  SIN CONEXION ############################
+################ FUNCIONES AUXILIARES SIN CONEXION #############################
 ################################################################################
 
 
@@ -430,58 +461,3 @@ def createScore(respuesta_id, voto, alias, titulo, fecha = None):
             "fecha_creacion": fecha
     }
 
-
-        
-
-if __name__ == '__main__' : 
-
-    # Conexión con la base de datos
-    client = MongoClient('localhost',27017)
-    db = client['sgdi_grupo04']
-
-
-    # usuarios
-    # print insert_user("ShW7", "Sherlock", "Holmes", 
-    #                  "Baker Street", "221B", "London", "England", 
-    #                  ["SQL", "Tor", "recovering"])
-    # print insert_user("Poison", "Hercules", "Poirot", 
-    #                   "Le grand place", "3", "Bruxeles", "Belgium", 
-    #                   ["Poison", "SQL", "murders"])
-    # print insert_user("alias", "n", "a", 
-    #                   "v", "n", "c", "p", 
-    #                   ["asd", "bl"])
-    
-    # print update_user("1alias", "a", "a", "a", "a", "a", "a", [])
-    
-    # print get_user("ShW")
-    # print get_uses_by_expertise("SQL")
-
-    #preguntas
-    # print add_question("Titulo sobre SQL", "Poison", "Como puedo realizar un join por la izquierda?", ["sql", "bbdd"])
-    # print add_question("Titulo sobre javascript", "ShW", "Como funciona la orientación a objetos basada en prototipos?", ["javascript", "sql"])
-    
-    # print get_question_by_tag(["sql"])
-
-
-
-    #respuestas
-    # print add_answer(ObjectId("569d3a341204b70e9ce41037"), "ShW", 
-    #                  "la clave es imaginar un objeto como un diccionario de punteros a función")
-    # print add_answer(ObjectId("569d3a341204b70e9ce41037"), "alias", 
-    #                  "Mira esta URL: aquí te lo explican ....")
-
-    # print get_question(ObjectId("569d3a341204b70e9ce41037"))
-    # print add_comment(ObjectId("569d3f9e1204b712cd7d58d8"), "Poison",
-    #                   "Esto es un comentario a tu respuesta. Muy buena!")
-
-    # print get_entries_by_user("ShW")
-    # print get_newest_questions(2)
-    # print get_questions_by_tag(2, ["sql"])
-
-
-    print score_answer(ObjectId("569d3f9e12044b712cd7d58d7"), -1, "alias")
-
-    #print update_score(ObjectId("569e20e11204b70e4eb8bf09"))
-    # print get_scores("alias")
-
-    #print delete_question(ObjectId("569d3a341204b70e9ce41037"))
