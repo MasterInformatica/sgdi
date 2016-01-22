@@ -68,11 +68,12 @@ utilizadas y las razones que se han considerado para su diseño:\\
 \end{table}
 
 
-De este diseño destacar que la dirección se encuentra un objeto JSON
-anidado en la tabla, en vez de referenciado ya que este posee poco tamaño y
-no va a sufrir muchos cambios. Asimismo, se ha decidido no tener
-referencias desde un usuario a las preguntas, respuestas, comentarios o
-votaciones que realiza en el sitio, sino que el resto de colecciones tengan
+De este diseño destacar que la dirección se encuentra almacenada un objeto
+JSON anidado en la tabla, en vez de estar referenciado a una tabla distinta
+ya que este posee poco tamaño y no va a sufrir muchos cambios. Asimismo, se
+ha decidido no tener referencias desde un usuario a las preguntas,
+respuestas, comentarios o votaciones que realiza en el sitio, sino que el
+resto de colecciones tengan
 referencias a los usuarios.\\
 
 A continuación se muestra un ejemplo de usuario en la colección: \\
