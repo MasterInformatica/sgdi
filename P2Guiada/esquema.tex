@@ -1,0 +1,209 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[latin1]{inputenc} 
+%\usepackage[T1]{fontenc} 
+\usepackage[spanish]{babel}
+\decimalpoint
+\setlength{\parskip}{0.5\baselineskip} 
+\usepackage{fullpage}
+\usepackage[procnames]{listings}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[fleqn]{amsmath}
+\parindent 0in 
+\setlength{\mathindent}{0pt}
+\usepackage{float}
+
+%% DEFINICIONES
+\newcommand{\TODO}[1]{{\huge \color{red} \textbf{TODO: }#1 }}
+\newcommand{\todo}[1]{{\large \color{red} \textbf{TODO: }#1 }}
+
+\lstset{%
+  % backgroundcolor=\color{yellow!20},%
+  basicstyle=\ttfamily,%
+  numbers=left, numberstyle=\scriptsize, stepnumber=1, numbersep=5pt,%
+  frame=single%
+}%
+
+
+
+\title{Sistemas de Gestión de Datos y de la Información\\Sesión 2 Guiada:
+  MongoDB}
+\author{Luis M. Costero Valero --- Jesús J. Doménech Arellano}
+\date{22 de enero de 2016}
+
+\begin{document} 
+\maketitle
+
+\textbf{Pregunta 1:} El plan ganador es \emph{COLLSCAN} $\rightarrow$
+\emph{SORT} (username:1)
+\begin{lstlisting}
+  "winningPlan" : {
+    "stage" : "SORT",
+    "sortPattern" : {
+      "username" : 1
+    },
+    "inputStage" : {
+      "stage" : "COLLSCAN",
+      "filter" : {
+	"year" : {
+	  "$eq" : 1980
+	}
+      },
+      "direction" : "forward"
+    }
+  }
+\end{lstlisting}
+%$
+\textbf{Pregunta 2:} El plan ganador es: \emph{IXSCAN} (year\_1)
+$\rightarrow$ \emph{FETCH} $\rightarrow$ \emph{KEEP\_MUTATIONS}
+$\rightarrow$ \emph{SORT} (username:1).
+\begin{lstlisting}
+  "winningPlan" : {
+    "stage" : "SORT",
+    "sortPattern" : {
+      "username" : 1
+    },
+    "inputStage" : {
+      "stage" : "KEEP_MUTATIONS",
+      "inputStage" : {
+	"stage" : "FETCH",
+	"inputStage" : {
+	  "stage" : "IXSCAN",
+	  "keyPattern" : {
+	    "year" : 1
+	  },
+	  "indexName" : "year_1",
+	  "isMultiKey" : false,
+	  "direction" : "forward",
+	  "indexBounds" : {
+	    "year" : [
+	      "[1980.0, 1980.0]"
+	    ]
+	  }
+	}
+      }
+    }
+  }
+\end{lstlisting}
+
+\textbf{Pregunta 3:} El plan ganador es: \emph{IXSCAN} (year\_1) $\rightarrow$
+\emph{FETCH}. El número de documentos examinados es 20.000 y se examinan
+20.000 claves, se recorre la clave desde MinKey a MaxKey
+
+\begin{lstlisting}
+"winningPlan" : {
+    "stage" : "FETCH",
+    "filter" : {
+      "like" : {
+	"$eq" : "deportes"
+      }
+    },
+    "inputStage" : {
+      "stage" : "IXSCAN",
+      "keyPattern" : {
+	"year" : 1
+      },
+      "indexName" : "year_1",
+      "isMultiKey" : false,
+      "direction" : "forward",
+      "indexBounds" : {
+	"year" : [
+	  "[MinKey, MaxKey]"
+	]
+      }
+    }
+  },
+  "executionStats" : {
+    ...
+    "totalKeysExamined" : 20000,
+    "totalDocsExamined" : 20000,
+    ...
+  },
+\end{lstlisting}
+%$
+\textbf{Pregunta 4:} 
+\begin{itemize}
+ \item El plan ganador es: \emph{IXSCAN} (year\_1\_\_id\_1) $\rightarrow$
+   \emph{PROJECTION} (\_id:1)
+   \begin{lstlisting}
+  "winningPlan" : {
+    "stage" : "PROJECTION",
+    "transformBy" : {
+      "_id" : 1
+    },
+    "inputStage" : {
+      "stage" : "IXSCAN",
+      "keyPattern" : {
+	"year" : 1,
+	"_id" : 1
+      },
+      "indexName" : "year_1__id_1",
+      "isMultiKey" : false,
+      "direction" : "forward",
+      "indexBounds" : {
+	"year" : [
+	  "[1980.0, 1980.0]"
+	],
+	"_id" : [
+	  "[MinKey, MaxKey]"
+	]
+      }
+    }
+  },
+\end{lstlisting}
+\item Examina 164 claves y 0 documentos
+\begin{lstlisting}
+  "totalKeysExamined" : 164,
+  "totalDocsExamined" : 0,
+\end{lstlisting}
+\item El plan rechazado es \emph{IXSCAN} (year\_1) $\rightarrow$
+  \emph{FETH} $\rightarrow$ \emph{PROJECTION} (\_id:1)
+\begin{lstlisting}
+  "rejectedPlans" : [
+    {
+      "stage" : "PROJECTION",
+      "transformBy" : {
+	"_id" : 1
+      },
+      "inputStage" : {
+	"stage" : "FETCH",
+	"inputStage" : {
+	  "stage" : "IXSCAN",
+	  "keyPattern" : {
+	    "year" : 1
+	  },
+	  "indexName" : "year_1",
+	  "isMultiKey" : false,
+	  "direction" : "forward",
+	  "indexBounds" : {
+	    "year" : [
+	      "[1980.0, 1980.0]"
+	    ]
+	  }
+	}
+      }
+    }
+  ]
+\end{lstlisting}
+
+\end{itemize}
+
+\textbf{Pregunta 5:} El servidor primario es \emph{:27102} ya que el número
+de votos de los tres candidatos es 1 (el mismo), y \emph{:27102} fue el
+primero en entrar al set ejecutando ``rs.initiate()'' en una shell
+conectada a él.
+
+\textbf{Pregunta 6:}
+\textbf{Pregunta 7:}
+\textbf{Pregunta 8:}
+\textbf{Pregunta 9:}
+\textbf{Pregunta 10:}
+
+
+\end{document}
+
