@@ -198,11 +198,71 @@ de votos de los tres candidatos es 1 (el mismo), y \emph{:27102} fue el
 primero en entrar al set ejecutando ``rs.initiate()'' en una shell
 conectada a él.
 
-\textbf{Pregunta 6:}
+\textbf{Pregunta 6:} Al desconectar el servidor primario, los servidores
+secundarios han detectado que está inalcanzable, por lo que se han decidido
+transformar un servidor secundario en primario. Los cambios más importantes
+que hay son:
+\begin{itemize}
+\item La información sobre el servidor que se ha desconectado ha cambiado:\\
+  -- Estado del servidor: inalcanzable.\\
+  -- Health: 0.
+\item La información sobre el nuevo nodo primario (:27103) en este caso,
+  es:\\
+  -- Estado del servidor: PRIMARY.
+\end{itemize}
+
 \textbf{Pregunta 7:}
+Tras eliminar los dos servidores primarios, únicamente queda un servidor
+alcanzable, pero que mantiene el estado de servidor secundario.
+
 \textbf{Pregunta 8:}
+La colección sgdi.users se ha almacenado en el primer servidor creado.
+
 \textbf{Pregunta 9:}
+La colección se ha dividido en 14 chunks. El shard 0 y 1 almacenan 5 de
+ellos cada uno, mientras que el 2 solamente almacena 4.
+El rango de cada uno se puede apreciar en el siguiente código:
+\begin{lstlisting}[basicstyle=\tiny\ttfamily]
+chunks:
+    shard0000	5
+    shard0001	5
+    shard0002	4
+    { "username" : { "$minKey" : 1 } } -->> { "username" : "DooLR" } on : shard0001 Timestamp(2, 0) 
+    { "username" : "DooLR" } -->> { "username" : "HiDei" } on : shard0002 Timestamp(3, 0) 
+    { "username" : "HiDei" } -->> { "username" : "LVILN" } on : shard0001 Timestamp(4, 0) 
+    { "username" : "LVILN" } -->> { "username" : "PLEnl" } on : shard0002 Timestamp(5, 0) 
+    { "username" : "PLEnl" } -->> { "username" : "SyjKH" } on : shard0001 Timestamp(6, 0) 
+    { "username" : "SyjKH" } -->> { "username" : "Wodbl" } on : shard0002 Timestamp(7, 0) 
+    { "username" : "Wodbl" } -->> { "username" : "adQse" } on : shard0001 Timestamp(8, 0) 
+    { "username" : "adQse" } -->> { "username" : "eQrFQ" } on : shard0002 Timestamp(9, 0) 
+    { "username" : "eQrFQ" } -->> { "username" : "iKtup" } on : shard0001 Timestamp(10, 0) 
+    { "username" : "iKtup" } -->> { "username" : "lzycA" } on : shard0000 Timestamp(10, 1) 
+    { "username" : "lzycA" } -->> { "username" : "pkkEW" } on : shard0000 Timestamp(1, 10) 
+    { "username" : "pkkEW" } -->> { "username" : "tZglH" } on : shard0000 Timestamp(1, 11) 
+    { "username" : "tZglH" } -->> { "username" : "xMxcJ" } on : shard0000 Timestamp(1, 12) 
+    { "username" : "xMxcJ" } -->> { "username" : { "$maxKey" : 1 } } on : shard0000 Timestamp(1, 13) 
+
+\end{lstlisting}
+
+
 \textbf{Pregunta 10:}
+\begin{itemize}
+\item Consulta 1:
+  Nº shards consultados:
+  \\ Resultados devueltos cada shard:
+  \\Tipo de búsqueda:
+  \\Número de documentos devueltos:
+\item Consulta 1:
+  Nº shards consultados:
+  \\Resultados devueltos cada shard:
+  \\Tipo de búsqueda:
+  \\Número de documentos devueltos:
+\item Consulta 1:
+  Nº shards consultados:
+  \\Resultados devueltos cada shard:
+  \\Tipo de búsqueda:
+  \\Número de documentos devueltos:
+\end{itemize}
 
 
 \end{document}
