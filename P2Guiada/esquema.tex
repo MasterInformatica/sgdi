@@ -1,6 +1,6 @@
 \documentclass[11pt,a4paper]{article}
 
-\usepackage[latin1]{inputenc} 
+\usepackage[utf8]{inputenc} 
 %\usepackage[T1]{fontenc} 
 \usepackage[spanish]{babel}
 \decimalpoint
@@ -31,14 +31,21 @@
 
 
 
-\title{Sistemas de Gestión de Datos y de la Información\\Sesión 2 Guiada:
+\title{Sistemas de GestiÃ³n de Datos y de la InformaciÃ³n\\SesiÃ³n 2 Guiada:
   MongoDB}
-\author{Luis M. Costero Valero --- Jesús J. Doménech Arellano}
-\date{22 de enero de 2016}
+\author{Luis M. Costero Valero --- JesÃºs J. DomÃ©nech Arellano}
+\date{29 de enero de 2016}
 
 \begin{document} 
 \maketitle
 
+\hrule
+\textbf{DeclaraciÃ³n de autorÃ­a:}\\Este documento y el trabajo realizado
+ reflejado en Ã©l es fruto ÃšNICAMENTE del trabajo de sus miembros. Declaramos
+ no haber colaborado de ninguna manera con otros grupos, haber compartido el
+ cÃ³digo con otros ni haberlo obtenido de una fuente externa.\\
+\hrule
+\vspace{2cm}
 \textbf{Pregunta 1:} El plan ganador es \emph{COLLSCAN} $\rightarrow$
 \emph{SORT} (username:1)
 \begin{lstlisting}
@@ -92,7 +99,7 @@ $\rightarrow$ \emph{SORT} (username:1).
 \end{lstlisting}
 
 \textbf{Pregunta 3:} El plan ganador es: \emph{IXSCAN} (year\_1) $\rightarrow$
-\emph{FETCH}. El número de documentos examinados es 20.000 y se examinan
+\emph{FETCH}. El nÃºmero de documentos examinados es 20.000 y se examinan
 20.000 claves, se recorre la clave desde MinKey a MaxKey
 
 \begin{lstlisting}
@@ -115,11 +122,9 @@ $\rightarrow$ \emph{SORT} (username:1).
 	"year" : [
 	  "[MinKey, MaxKey]"
 	]
-      }
-    }
+      }}
   },
   "executionStats" : {
-    ...
     "totalKeysExamined" : 20000,
     "totalDocsExamined" : 20000,
     ...
@@ -193,35 +198,35 @@ $\rightarrow$ \emph{SORT} (username:1).
 
 \end{itemize}
 
-\textbf{Pregunta 5:} El servidor primario es \emph{:27102} ya que el número
+\textbf{Pregunta 5:} El servidor primario es \emph{:27102} ya que el nÃºmero
 de votos de los tres candidatos es 1 (el mismo), y \emph{:27102} fue el
 primero en entrar al set ejecutando ``rs.initiate()'' en una shell
-conectada a él.
+conectada a Ã©l.
 
 \textbf{Pregunta 6:} Al desconectar el servidor primario, los servidores
-secundarios han detectado que está inalcanzable, por lo que se han decidido
-transformar un servidor secundario en primario. Los cambios más importantes
+secundarios han detectado que estÃ¡ inalcanzable, por lo que se han decidido
+transformar un servidor secundario en primario. Los cambios mÃ¡s importantes
 que hay son:
 \begin{itemize}
-\item La información sobre el servidor que se ha desconectado ha cambiado:\\
+\item La informaciÃ³n sobre el servidor que se ha desconectado ha cambiado:\\
   -- Estado del servidor: inalcanzable.\\
   -- Health: 0.
-\item La información sobre el nuevo nodo primario (:27103) en este caso,
+\item La informaciÃ³n sobre el nuevo nodo primario (:27103) en este caso,
   es:\\
   -- Estado del servidor: PRIMARY.
 \end{itemize}
 
 \textbf{Pregunta 7:}
-Tras eliminar los dos servidores primarios, únicamente queda un servidor
+Tras eliminar los dos servidores primarios, Ãºnicamente queda un servidor
 alcanzable, pero que mantiene el estado de servidor secundario.
 
 \textbf{Pregunta 8:}
-La colección sgdi.users se ha almacenado en el primer servidor creado.
+La colecciÃ³n sgdi.users se ha almacenado en el primer servidor creado.
 
 \textbf{Pregunta 9:}
-La colección se ha dividido en 14 chunks. El shard 0 y 1 almacenan 5 de
+La colecciÃ³n se ha dividido en 14 chunks. El shard 0 y 1 almacenan 5 de
 ellos cada uno, mientras que el 2 solamente almacena 4.
-El rango de cada uno se puede apreciar en el siguiente código:
+El rango de cada uno se puede apreciar en el siguiente cÃ³digo:
 \begin{lstlisting}[basicstyle=\tiny\ttfamily]
 chunks:
     shard0000	5
@@ -244,24 +249,155 @@ chunks:
 
 \end{lstlisting}
 
-
+\newpage{}
 \textbf{Pregunta 10:}
 \begin{itemize}
-\item Consulta 1:
-  Nº shards consultados:
-  \\ Resultados devueltos cada shard:
-  \\Tipo de búsqueda:
-  \\Número de documentos devueltos:
-\item Consulta 1:
-  Nº shards consultados:
-  \\Resultados devueltos cada shard:
-  \\Tipo de búsqueda:
-  \\Número de documentos devueltos:
-\item Consulta 1:
-  Nº shards consultados:
-  \\Resultados devueltos cada shard:
-  \\Tipo de búsqueda:
-  \\Número de documentos devueltos:
+\item Consulta 1: \texttt{e.find(\{\_id: 67\})}\\
+  -- \emph{NÂº shards consultados:} Se consultan los 3 shards creados.
+  \\-- \emph{Resultados devueltos cada shard:} El shard 0 y 1 no devuelven ningÃºn
+  resultado, mientras que el 3 devuelve un documento.
+  \\-- \emph{Tipo de bÃºsqueda:} Cada shard realiza una fase IDHACK $\rightarrow$
+  SHARDING\_FILTER. El resutlado de todos los shard se combina en una fase SHARD\_MERGE.
+  \\-- \emph{NÃºmero de documentos devueltos y examinados :} Ãšnicamente se
+  devuelve 1 documento. Se ha consultado Ãºnicamente 1 clave y 1 documento
+  para realizar la bÃºsqueda.
+
+  \begin{lstlisting}
+    "executionStats" : {
+      "nReturned" : 1,
+      "totalKeysExamined" : 1,
+      "totalDocsExamined" : 1,
+      "executionStages" : {
+        "stage" : "SHARD_MERGE",
+        [...]
+        "shards" : [
+        { "shardName" : "shard0000",
+          "executionStages" : {
+            "stage" : "SHARDING_FILTER",
+            "nReturned" : 0,
+            [...]
+            "inputStage" : {
+              "stage" : "IDHACK",
+              "nReturned" : 0,
+              [...]
+            }}},
+        { "shardName" : "shard0001",
+          "executionStages" : {
+            "stage" : "SHARDING_FILTER",
+            "nReturned" : 0,
+            [...]
+            "inputStage" : {
+              "stage" : "IDHACK",
+              "nReturned" : 0,
+              [...]
+            }}},
+        { "shardName" : "shard0002",
+          "executionStages" : {
+            "stage" : "SHARDING_FILTER",
+            "nReturned" : 1,
+            "inputStage" : {
+              "stage" : "IDHACK",
+              "nReturned" : 1,
+              [...]
+            }}}
+        ]}
+    \end{lstlisting}
+
+\item Consulta 2: \texttt{e.find(\{year:1997\})}\\
+  -- \emph{NÂº shards consultados:} Se consultan los 3 shards creados.
+  \\-- \emph{Resultados devueltos cada shard:} El shard 0 devuelve 288
+  documentos, el shard 1 devuelve 304 y el shard 2 devuelve 246 documentos.
+  \\-- \emph{Tipo de bÃºsqueda:} Todos los shard han realizado el mismo tÃ­po
+  de bÃºsqueda: Una fase COLLSCAN $\rightarrow$ SHARDING\_FILTER. Todos los
+  resultados de los shards se han combinado mediante una fase SHARD\_MERGE.
+  \\-- \emph{NÃºmero de documentos devueltos y examinados:} Tras realizar el merge, se
+  han devuelto 838 documentos. Se han consultado todos los documentos
+  (100000) y ninguna clave.
+
+  \begin{lstlisting}
+    "executionStats" : {
+      "nReturned" : 838,
+      "totalKeysExamined" : 0,
+      "totalDocsExamined" : 100000,
+      "executionStages" : {
+        "stage" : "SHARD_MERGE",
+        "nReturned" : 838,
+        [...]
+        "shards" : [
+        { "shardName" : "shard0000",
+          "executionStages" : {
+            "stage" : "SHARDING_FILTER",
+            "nReturned" : 288,
+            "inputStage" : {
+              "stage" : "COLLSCAN",
+              [...]
+            },
+            [...]
+          }}},
+      { "shardName" : "shard0001",
+        "executionStages" : {
+          "stage" : "SHARDING_FILTER",
+          "nReturned" : 304,
+          "stage" : "COLLSCAN",
+          [...]
+        },
+        [...]
+      },
+      { "shardName" : "shard0002",
+        "executionStages" : {
+          "stage" : "SHARDING_FILTER",
+          "nReturned" : 246,
+          "inputStage" : {
+            "stage" : "COLLSCAN",
+            [...]
+          },
+          [...]
+        }}
+      ]},
+  \end{lstlisting}
+
+\item Consulta 3: \texttt{e.find(\{username:''Aaron''\}}\\
+  -- \emph{NÂº shards consultados:} Ãšnicamente se consulta 1 shard.
+  \\-- \emph{Resultados devueltos cada shard:} El shard consultado devuelve
+  0 resultados.
+  \\-- \emph{Tipo de bÃºsqueda:} El tipo de bÃºsqueda realizada ha sido:
+  IXCAN (username\_1) $\rightarrow$ SHARDING\_FILTER $\rightarrow$ FETCH
+  $\rightarrow$ SINGLE\_SHARD.
+  \\-- \emph{NÃºmero de documentos devueltos:} Para realizar la bÃºsqueda se
+  han consultado 0 documentos y 0 Ã­ndices, devolviendo 0 resutlados.
+
+
+  \begin{lstlisting}
+    "executionStats" : {
+      "nReturned" : 0,
+      "totalKeysExamined" : 0,
+      "totalDocsExamined" : 0,
+      "executionStages" : {
+        "stage" : "SINGLE_SHARD",
+        "nReturned" : 0,
+        "shards" : [
+        { "shardName" : "shard0001",
+          "executionStages" : {
+            "stage" : "FETCH",
+            "nReturned" : 0,
+            [...]
+            "inputStage" : {
+              "stage" : "SHARDING_FILTER",
+              "nReturned" : 0,
+              "inputStage" : {
+                "stage" : "IXSCAN",
+                "nReturned" : 0,
+                "indexName" : "username_1",
+                "indexBounds" : {
+                  "username" : [
+                  "[\"Aaron\", \"Aaron\"]"
+                  ]
+                },
+                "keysExamined" : 0,
+                [...]
+              }}}}
+        ]},
+  \end{lstlisting}
 \end{itemize}
 
 
